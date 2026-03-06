@@ -1,7 +1,7 @@
 # GateFlow ALU Task List
 
 ## Phase 0: Repository setup
-- [ ] Initialize Vite + React + TypeScript project
+- [x] Initialize Vite + React + TypeScript project
 - [ ] Create initial folder structure
 - [ ] Add README-based project overview
 - [ ] Confirm app runs locally with `npm run dev`
