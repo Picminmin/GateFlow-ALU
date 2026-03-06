@@ -3,7 +3,7 @@
 ## Phase 0: Repository setup
 - [x] Initialize Vite + React + TypeScript project
 - [x] Create initial folder structure
-- [ ] Add README-based project overview
+- [x] Add README-based project overview
 - [ ] Confirm app runs locally with `npm run dev`
 
 ## Phase 1: Core types and architecture
