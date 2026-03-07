@@ -21,7 +21,7 @@
 - [x] Add a clean educational layout
 
 ## Phase 3: Circuit mode support
-- [ ] Define Primitive mode circuit graph
+- [x] Define Primitive mode circuit graph
 - [ ] Define Optimized mode circuit graph
 - [ ] Implement mode switch UI
 - [ ] Make mode switching replace the actual rendered graph
