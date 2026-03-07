@@ -97,6 +97,9 @@ export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostIn
 
           <div className="formula-box">
             <p>carryChainLength = (Cin == 1) ? N : max(1, round(0.2N))</p>
+            <p>
+              carryChainLength means how many bit-stages the carry (from Cin) propagates through in the adder.
+            </p>
             <p>Add Delay = 2.2 + 1.2 * carryChainLength</p>
             <p>Add Events = 9N + 4 * carryChainLength</p>
             <p>Mul Delay = 1.6N^2 + 3.4N</p>
@@ -122,8 +125,18 @@ export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostIn
             <line x1="60" y1="272" x2="60" y2="28" className="curve-axis" />
             <path d={chart.addPath} className="curve-add" />
             <path d={chart.mulPath} className="curve-mul" />
+            <line
+              x1={chart.x(bitWidth)}
+              y1={chart.y(chart.currentMul)}
+              x2="60"
+              y2={chart.y(chart.currentMul)}
+              className="curve-guide"
+            />
             <circle cx={chart.x(bitWidth)} cy={chart.y(chart.currentAdd)} r="5" className="curve-add-dot" />
             <circle cx={chart.x(bitWidth)} cy={chart.y(chart.currentMul)} r="5" className="curve-mul-dot" />
+            <text x="64" y={chart.y(chart.currentMul) - 6} className="curve-mul-value">
+              {chart.currentMul.toFixed(1)}
+            </text>
             <text x="64" y="24" className="curve-title">
               Cost Growth (N=1..32, Cin={insight.cin})
             </text>
