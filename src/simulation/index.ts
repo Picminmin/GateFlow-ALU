@@ -4,3 +4,5 @@ export type { SimulationEngine } from './engine';
 export { evaluateGateType, evaluateNodeOutput } from './gates';
 export { enqueueEvent, enqueueEvents, dequeueNextEvent } from './scheduler';
 export { createInitialSimulationState } from './state';
+export { validateFullAdderCircuit } from './validation';
+export type { FullAdderValidationMismatch, FullAdderValidationResult } from './validation';

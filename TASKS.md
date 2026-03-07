@@ -32,7 +32,7 @@
 - [x] Implement discrete-event scheduling
 - [x] Implement propagation delays
 - [x] Implement simulation state updates over time
-- [ ] Ensure outputs are logically correct
+- [x] Ensure outputs are logically correct
 
 ## Phase 5: Animation
 - [ ] Represent active signals as moving dots on wires

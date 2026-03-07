@@ -80,6 +80,20 @@ body {
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
+.validation-ok,
+.validation-error {
+  margin: 0.25rem 0 0.75rem;
+  font-weight: 700;
+}
+
+.validation-ok {
+  color: #047857;
+}
+
+.validation-error {
+  color: #b91c1c;
+}
+
 .circuit-viewport {
   width: 100%;
 }

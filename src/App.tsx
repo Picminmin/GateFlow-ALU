@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { CircuitViewport } from './components';
 import { getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
+import { validateFullAdderCircuit } from './simulation';
 
 function App() {
   const [mode, setMode] = useState<FullAdderMode>('primitive');
   const activeCircuit = getFullAdderCircuit(mode);
+  const validation = validateFullAdderCircuit(activeCircuit);
 
   return (
     <main className="app-shell">
@@ -40,6 +42,11 @@ function App() {
         </fieldset>
       </header>
       <section className="circuit-card">
+        <p className={validation.isValid ? 'validation-ok' : 'validation-error'}>
+          {validation.isValid
+            ? 'Truth table check: pass (all 8 input combinations)'
+            : `Truth table check: fail (${validation.mismatches.length} mismatch(es))`}
+        </p>
         <CircuitViewport circuit={activeCircuit} />
       </section>
     </main>
