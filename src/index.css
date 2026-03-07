@@ -121,6 +121,12 @@ body {
   text-anchor: middle;
 }
 
+.signal-dot {
+  fill: #0ea5e9;
+  stroke: #e0f2fe;
+  stroke-width: 2;
+}
+
 .circuit-node {
   stroke-width: 2;
 }

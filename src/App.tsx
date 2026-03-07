@@ -3,11 +3,16 @@ import { CircuitViewport } from './components';
 import { getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
 import { validateFullAdderCircuit } from './simulation';
+import type { WireSignal } from './types';
 
 function App() {
   const [mode, setMode] = useState<FullAdderMode>('primitive');
   const activeCircuit = getFullAdderCircuit(mode);
   const validation = validateFullAdderCircuit(activeCircuit);
+  const demoSignalEdge = activeCircuit.edges[0]?.id;
+  const demoSignals: WireSignal[] = demoSignalEdge
+    ? [{ edgeId: demoSignalEdge, value: 1, startTime: 0, endTime: 1 }]
+    : [];
 
   return (
     <main className="app-shell">
@@ -47,7 +52,7 @@ function App() {
             ? 'Truth table check: pass (all 8 input combinations)'
             : `Truth table check: fail (${validation.mismatches.length} mismatch(es))`}
         </p>
-        <CircuitViewport circuit={activeCircuit} />
+        <CircuitViewport circuit={activeCircuit} activeSignals={demoSignals} currentTime={0.5} />
       </section>
     </main>
   );

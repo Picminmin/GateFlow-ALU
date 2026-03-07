@@ -1,8 +1,10 @@
-import type { CircuitGraph, CircuitNode } from '../../types';
+import type { CircuitGraph, CircuitNode, WireSignal } from '../../types';
 import { getCircuitBounds } from '../../renderer';
 
 interface CircuitViewportProps {
   circuit: CircuitGraph;
+  activeSignals?: WireSignal[];
+  currentTime?: number;
 }
 
 function nodeClassName(node: CircuitNode): string {
@@ -11,7 +13,11 @@ function nodeClassName(node: CircuitNode): string {
   return 'circuit-node circuit-node-gate';
 }
 
-export function CircuitViewport({ circuit }: CircuitViewportProps) {
+export function CircuitViewport({
+  circuit,
+  activeSignals = [],
+  currentTime = 0,
+}: CircuitViewportProps) {
   const nodeById = new Map(circuit.nodes.map((node) => [node.id, node]));
   const bounds = getCircuitBounds(circuit);
   const padding = 80;
@@ -61,6 +67,37 @@ export function CircuitViewport({ circuit }: CircuitViewportProps) {
                 </text>
               ) : null}
             </g>
+          );
+        })}
+
+        {activeSignals.map((signal) => {
+          const edge = circuit.edges.find((item) => item.id === signal.edgeId);
+          if (!edge) {
+            return null;
+          }
+
+          const fromNode = nodeById.get(edge.from);
+          const toNode = nodeById.get(edge.to);
+          if (!fromNode || !toNode) {
+            return null;
+          }
+
+          const x1 = fromNode.x + 40;
+          const y1 = fromNode.y;
+          const x2 = toNode.x - 40;
+          const y2 = toNode.y;
+          const duration = Math.max(1, signal.endTime - signal.startTime);
+          const rawProgress = (currentTime - signal.startTime) / duration;
+          const progress = Math.min(1, Math.max(0, rawProgress));
+
+          return (
+            <circle
+              key={`${signal.edgeId}-${signal.startTime}`}
+              cx={x1 + (x2 - x1) * progress}
+              cy={y1 + (y2 - y1) * progress}
+              r={5}
+              className="signal-dot"
+            />
           );
         })}
 

@@ -35,7 +35,7 @@
 - [x] Ensure outputs are logically correct
 
 ## Phase 5: Animation
-- [ ] Represent active signals as moving dots on wires
+- [x] Represent active signals as moving dots on wires
 - [ ] Highlight active wires
 - [ ] Highlight gate outputs when active
 - [ ] Add time-based animation loop
