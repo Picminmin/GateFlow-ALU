@@ -5,12 +5,20 @@ import {
   structureStatusMessage,
   truthTableStatusMessage,
 } from './app/status';
-import { CircuitViewport, EventLogPanel, GateDetailsPanel, InputsPanel, PlaybackControls } from './components';
+import {
+  CircuitViewport,
+  CostInsightPanel,
+  EventLogPanel,
+  GateDetailsPanel,
+  InputsPanel,
+  PlaybackControls,
+} from './components';
 import { fullAdderCircuits, getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
 import {
   createInitialSimulationState,
   createSimulationEngine,
+  estimateCostInsight,
   type SimulationEngine,
   validateFullAdderCircuit,
   verifyDeterministicStepping,
@@ -24,6 +32,7 @@ function App() {
   const [animationTime, setAnimationTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(0.5);
+  const [bitWidth, setBitWidth] = useState(8);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [eventLog, setEventLog] = useState<string[]>([]);
   const [simulationState, setSimulationState] = useState<SimulationState>(createInitialSimulationState());
@@ -55,6 +64,11 @@ function App() {
     fullAdderCircuits.optimized.nodes.length,
   );
   const steppingStatus = steppingStatusMessage(deterministicSteppingWorks);
+  const costInsight = estimateCostInsight({
+    bitWidth,
+    cin: inputs.cin,
+    currentTime: animationTime,
+  });
 
   const appendLog = (message: string) => {
     setEventLog((prev) => {
@@ -226,6 +240,7 @@ function App() {
           outputValue={selectedNode ? simulationState.values[selectedNode.id] ?? 0 : 0}
         />
       </div>
+      <CostInsightPanel insight={costInsight} bitWidth={bitWidth} onBitWidthChange={setBitWidth} />
       <EventLogPanel entries={eventLog} />
     </main>
   );

@@ -1,3 +1,5 @@
+export { estimateCostInsight } from './costInsight';
+export type { CostEstimate, CostInsightResult, CarryPropagationInsight } from './costInsight';
 export { createDelayedSignalEvent, computePropagationTime, getNodeDelay } from './delays';
 export { createSimulationEngine } from './engine';
 export type { SimulationEngine } from './engine';
