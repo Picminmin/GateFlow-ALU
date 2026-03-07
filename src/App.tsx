@@ -351,7 +351,6 @@ function App() {
         </div>
         <section className="circuit-card">
           <OutputInsightPanel inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
-          {mode === 'optimized' && !isOptimizationExpanded ? circuitFigure : null}
           {mode === 'optimized' ? (
             <section className={isOptimizationExpanded ? 'optimization-progress' : 'optimization-progress compact'}>
               <div className="optimization-head">
@@ -392,7 +391,7 @@ function App() {
               ) : null}
             </section>
           ) : null}
-          {mode !== 'optimized' || isOptimizationExpanded ? circuitFigure : null}
+          {circuitFigure}
         </section>
         <div className="right-stack">
           <section className="panel learning-status">
