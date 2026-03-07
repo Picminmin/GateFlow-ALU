@@ -24,7 +24,7 @@ import {
   validateFullAdderCircuit,
   verifyDeterministicStepping,
 } from './simulation';
-import type { SimulationState } from './types';
+import type { CircuitNode, SimulationState } from './types';
 import type { LogicValue } from './types';
 import type { InputsPanelValues } from './components/panels/InputsPanel';
 
@@ -37,6 +37,10 @@ function App() {
   const [bitWidth, setBitWidth] = useState(8);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [optimizedStageIndex, setOptimizedStageIndex] = useState(2);
+  const [optimizationFlash, setOptimizationFlash] = useState<{
+    mergedNodeIds: string[];
+    removedNodes: CircuitNode[];
+  }>({ mergedNodeIds: [], removedNodes: [] });
   const [eventLog, setEventLog] = useState<string[]>([]);
   const [simulationState, setSimulationState] = useState<SimulationState>(createInitialSimulationState());
   const engineRef = useRef<SimulationEngine>(createSimulationEngine());
@@ -113,6 +117,7 @@ function App() {
       setOptimizedStageIndex(0);
     } else {
       setOptimizedStageIndex(optimizedStages.length - 1);
+      setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
     }
   }, [mode]);
 
@@ -130,6 +135,35 @@ function App() {
 
     return () => window.clearTimeout(timer);
   }, [mode, optimizedStageIndex, optimizedStages.length]);
+
+  useEffect(() => {
+    if (mode !== 'optimized' || optimizedStageIndex === 0) {
+      setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
+      return undefined;
+    }
+
+    const previous = optimizedStages[optimizedStageIndex - 1];
+    const current = optimizedStages[optimizedStageIndex];
+    const previousNodeIds = new Set(previous.nodes.map((node) => node.id));
+    const currentNodeIds = new Set(current.nodes.map((node) => node.id));
+    const mergedNodeIds = current.nodes
+      .filter((node) => !previousNodeIds.has(node.id) && node.type !== 'INPUT' && node.type !== 'OUTPUT')
+      .map((node) => node.id);
+    const removedNodes = previous.nodes.filter(
+      (node) => !currentNodeIds.has(node.id) && node.type !== 'INPUT' && node.type !== 'OUTPUT',
+    );
+
+    setOptimizationFlash({ mergedNodeIds, removedNodes });
+    appendLog(
+      `Optimization stage ${optimizedStageIndex + 1}: +${mergedNodeIds.length} merged / -${removedNodes.length} removed`,
+    );
+
+    const clearTimer = window.setTimeout(() => {
+      setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
+    }, 900);
+
+    return () => window.clearTimeout(clearTimer);
+  }, [mode, optimizedStageIndex, optimizedStages]);
 
   useEffect(() => {
     initializeSimulation();
@@ -281,6 +315,39 @@ function App() {
             {steppingStatus}
           </p>
           <OutputInsightPanel inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
+          <div className="circuit-visual-wrap">
+            {mode === 'optimized' ? (
+              <button
+                type="button"
+                className="optimization-replay-btn"
+                onClick={() => {
+                  setOptimizedStageIndex(0);
+                  setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
+                  appendLog('Optimization replay restarted');
+                }}
+              >
+                Replay Optimization
+              </button>
+            ) : null}
+            <CircuitViewport
+              circuit={displayedCircuit}
+              activeSignals={showOptimizedTransition ? [] : simulationState.activeSignals}
+              currentTime={animationTime}
+              nodeValues={showOptimizedTransition ? {} : simulationState.values}
+              inputValues={{
+                'in-a': inputs.a,
+                'in-b': inputs.b,
+                'in-cin': inputs.cin,
+              }}
+              highlightNodeIds={optimizationFlash.mergedNodeIds}
+              ghostNodes={optimizationFlash.removedNodes}
+              selectedNodeId={selectedNodeId}
+              onSelectNode={(nodeId) => {
+                setSelectedNodeId(nodeId);
+                appendLog(`Selected node: ${nodeId}`);
+              }}
+            />
+          </div>
           {mode === 'optimized' ? (
             <section className="optimization-progress">
               <p>
@@ -296,24 +363,12 @@ function App() {
                   </li>
                 ))}
               </ol>
+              <p className="optimization-diff-note">
+                Added/merged (cyan): {optimizationFlash.mergedNodeIds.length} | Removed (red ghost):{' '}
+                {optimizationFlash.removedNodes.length}
+              </p>
             </section>
           ) : null}
-          <CircuitViewport
-            circuit={displayedCircuit}
-            activeSignals={showOptimizedTransition ? [] : simulationState.activeSignals}
-            currentTime={animationTime}
-            nodeValues={showOptimizedTransition ? {} : simulationState.values}
-            inputValues={{
-              'in-a': inputs.a,
-              'in-b': inputs.b,
-              'in-cin': inputs.cin,
-            }}
-            selectedNodeId={selectedNodeId}
-            onSelectNode={(nodeId) => {
-              setSelectedNodeId(nodeId);
-              appendLog(`Selected node: ${nodeId}`);
-            }}
-          />
         </section>
         <div className="right-stack">
           <GateDetailsPanel

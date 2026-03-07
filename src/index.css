@@ -161,6 +161,8 @@ body {
   padding: 0.75rem;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
   color: #0f172a;
+  display: grid;
+  justify-items: stretch;
 }
 
 .circuit-meta {
@@ -171,7 +173,7 @@ body {
 }
 
 .optimization-progress {
-  margin: 0.2rem 0 0.6rem;
+  margin: 0.5rem 0 0.6rem;
   font-size: 1rem;
   font-weight: 600;
   color: #0f766e;
@@ -200,6 +202,13 @@ body {
 .optimization-step-active {
   color: #0f766e;
   font-weight: 800;
+}
+
+.optimization-diff-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.92rem;
+  color: #0f172a;
+  font-weight: 700;
 }
 
 .panel {
@@ -309,12 +318,37 @@ body {
 .circuit-viewport {
   width: 100%;
   min-height: 500px;
+  display: flex;
+  justify-content: center;
 }
 
 .circuit-viewport svg {
   width: 100%;
+  max-width: 1260px;
   height: auto;
   display: block;
+  margin: 0 auto;
+}
+
+.circuit-visual-wrap {
+  position: relative;
+  width: 100%;
+  display: grid;
+  justify-items: center;
+}
+
+.optimization-replay-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.6rem;
+  z-index: 2;
+  border: 1px solid #94a3b8;
+  background: rgba(248, 250, 252, 0.95);
+  color: #0f172a;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.32rem 0.58rem;
+  cursor: pointer;
 }
 
 .circuit-background {
@@ -436,6 +470,37 @@ body {
 
 .circuit-node-selected {
   stroke: #7c3aed;
+}
+
+.circuit-node-stage-highlight {
+  stroke: #22d3ee;
+  stroke-width: 3.2;
+  filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.85));
+}
+
+.circuit-ghost-node {
+  opacity: 0.75;
+  animation: removedFade 0.9s ease-out forwards;
+}
+
+.circuit-node-removed-ghost {
+  fill: rgba(248, 113, 113, 0.16);
+  stroke: #ef4444;
+  stroke-width: 2.4;
+  stroke-dasharray: 5 3;
+}
+
+.circuit-node-removed-label {
+  fill: #fca5a5;
+}
+
+@keyframes removedFade {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 .event-log ul {

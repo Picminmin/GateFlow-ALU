@@ -8,6 +8,8 @@ interface CircuitViewportProps {
   currentTime?: number;
   nodeValues?: Record<string, LogicValue>;
   inputValues?: Record<string, LogicValue>;
+  highlightNodeIds?: string[];
+  ghostNodes?: CircuitNode[];
   selectedNodeId?: string | null;
   onSelectNode?: (nodeId: string) => void;
 }
@@ -27,7 +29,12 @@ function outputAnchorX(node: CircuitNode): number {
   return node.x + 40;
 }
 
-function nodeClassName(node: CircuitNode, isActive: boolean, isSelected: boolean): string {
+function nodeClassName(
+  node: CircuitNode,
+  isActive: boolean,
+  isSelected: boolean,
+  isStageHighlight: boolean,
+): string {
   const classes = ['circuit-node', 'circuit-node-shape'];
   if (node.type === 'INPUT') {
     classes.push('circuit-node-input');
@@ -42,6 +49,7 @@ function nodeClassName(node: CircuitNode, isActive: boolean, isSelected: boolean
   }
   if (isActive) classes.push('circuit-node-active');
   if (isSelected) classes.push('circuit-node-selected');
+  if (isStageHighlight) classes.push('circuit-node-stage-highlight');
   return classes.join(' ');
 }
 
@@ -91,6 +99,8 @@ export function CircuitViewport({
   currentTime = 0,
   nodeValues = {},
   inputValues = {},
+  highlightNodeIds = [],
+  ghostNodes = [],
   selectedNodeId = null,
   onSelectNode,
 }: CircuitViewportProps) {
@@ -225,6 +235,17 @@ export function CircuitViewport({
           );
         })}
 
+        {ghostNodes.map((node) => (
+          <g key={`ghost-${node.id}`} className="circuit-ghost-node">
+            <g transform={`translate(${node.x - 40}, ${node.y - 22})`}>
+              {renderMilShape(node, 'circuit-node-shape circuit-node-removed-ghost')}
+            </g>
+            <text x={node.x} y={node.y + 33} className="circuit-node-label circuit-node-removed-label">
+              {node.label}
+            </text>
+          </g>
+        ))}
+
         {circuit.nodes.map((node) => (
           <g key={node.id}>
             <g
@@ -234,7 +255,12 @@ export function CircuitViewport({
             >
               {renderMilShape(
                 node,
-                nodeClassName(node, (nodeValues[node.id] ?? 0) === 1, selectedNodeId === node.id),
+                nodeClassName(
+                  node,
+                  (nodeValues[node.id] ?? 0) === 1,
+                  selectedNodeId === node.id,
+                  highlightNodeIds.includes(node.id),
+                ),
               )}
             </g>
             <text x={node.x} y={node.y + 33} className="circuit-node-label">
