@@ -54,7 +54,7 @@
 - [x] Confirm stepping works reliably
 - [x] Refactor for readability
 - [x] Improve labels and visual clarity
-- [ ] Update README with run instructions
+- [x] Update README with run instructions
 
 ## Post-MVP tasks
 - [ ] Add half adder mode
