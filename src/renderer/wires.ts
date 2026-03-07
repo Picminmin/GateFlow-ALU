@@ -27,15 +27,58 @@ function pointAlongSegment(a: Point, b: Point, t: number): Point {
   };
 }
 
+function isCollinear(a: Point, b: Point, c: Point): boolean {
+  const abx = b.x - a.x;
+  const aby = b.y - a.y;
+  const bcx = c.x - b.x;
+  const bcy = c.y - b.y;
+  return abx * bcy - aby * bcx === 0;
+}
+
+function normalizePoints(points: Point[]): Point[] {
+  const deduped = points.filter((point, index) => {
+    if (index === 0) return true;
+    const prev = points[index - 1];
+    return !(prev.x === point.x && prev.y === point.y);
+  });
+
+  const simplified: Point[] = [];
+  for (const point of deduped) {
+    if (simplified.length < 2) {
+      simplified.push(point);
+      continue;
+    }
+    const a = simplified[simplified.length - 2];
+    const b = simplified[simplified.length - 1];
+    if (isCollinear(a, b, point)) {
+      simplified[simplified.length - 1] = point;
+    } else {
+      simplified.push(point);
+    }
+  }
+
+  return simplified;
+}
+
 export function buildRoutedWire(start: Point, end: Point, edgeId: string): RoutedWire {
+  if (Math.abs(end.y - start.y) <= 4) {
+    const straightPoints = [start, end];
+    return {
+      points: straightPoints,
+      pathD: `M ${start.x} ${start.y} L ${end.x} ${end.y}`,
+      labelPoint: getPointAlongPolyline(straightPoints, 0.5),
+    };
+  }
+
   const hash = hashSeed(edgeId);
-  const laneOffset = ((hash % 5) - 2) * 10;
+  const verticalGap = Math.abs(end.y - start.y);
+  const laneOffset = verticalGap <= 18 ? 0 : ((hash % 5) - 2) * 8;
   const spanX = Math.max(70, (end.x - start.x) * 0.45);
   const bendX = Math.min(end.x - 24, start.x + spanX);
   const targetY = end.y + laneOffset;
-  const nearEndX = Math.max(start.x + 24, end.x - 28);
+  const nearEndX = Math.max(start.x + 28, end.x - 24);
 
-  const points: Point[] = [
+  const rawPoints: Point[] = [
     start,
     { x: bendX, y: start.y },
     { x: bendX, y: targetY },
@@ -43,6 +86,7 @@ export function buildRoutedWire(start: Point, end: Point, edgeId: string): Route
     { x: nearEndX, y: end.y },
     end,
   ];
+  const points = normalizePoints(rawPoints);
 
   const pathD = points
     .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`)
