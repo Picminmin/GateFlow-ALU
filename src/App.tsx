@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CircuitViewport, EventLogPanel, GateDetailsPanel, InputsPanel, PlaybackControls } from './components';
-import { getFullAdderCircuit } from './circuits/fullAdder';
+import { fullAdderCircuits, getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
 import { validateFullAdderCircuit } from './simulation';
 import type { WireSignal } from './types';
@@ -17,6 +17,9 @@ function App() {
   const activeCircuit = getFullAdderCircuit(mode);
   const selectedNode = activeCircuit.nodes.find((node) => node.id === selectedNodeId) ?? null;
   const validation = validateFullAdderCircuit(activeCircuit);
+  const primitiveValidation = validateFullAdderCircuit(fullAdderCircuits.primitive);
+  const optimizedValidation = validateFullAdderCircuit(fullAdderCircuits.optimized);
+  const allTruthTableChecksPass = primitiveValidation.isValid && optimizedValidation.isValid;
   const demoSignalEdge = activeCircuit.edges[0]?.id;
   const demoSignals: WireSignal[] = demoSignalEdge
     ? [{ edgeId: demoSignalEdge, value: 1, startTime: 0, endTime: 1 }]
@@ -143,6 +146,11 @@ function App() {
           {validation.isValid
             ? 'Truth table check: pass (all 8 input combinations)'
             : `Truth table check: fail (${validation.mismatches.length} mismatch(es))`}
+        </p>
+        <p className={allTruthTableChecksPass ? 'validation-ok' : 'validation-error'}>
+          {allTruthTableChecksPass
+            ? 'Global check: Primitive and Optimized both match all 8 full-adder truth-table rows.'
+            : 'Global check: At least one mode fails truth-table validation.'}
         </p>
         <CircuitViewport
           circuit={activeCircuit}

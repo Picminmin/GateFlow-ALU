@@ -49,7 +49,7 @@
 - [x] Add bottom event log panel
 
 ## Phase 7: Validation and cleanup
-- [ ] Confirm Sum and Cout are correct for all 8 input combinations
+- [x] Confirm Sum and Cout are correct for all 8 input combinations
 - [ ] Confirm Primitive and Optimized modes differ structurally
 - [ ] Confirm stepping works reliably
 - [ ] Refactor for readability
