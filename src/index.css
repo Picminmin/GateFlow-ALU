@@ -44,6 +44,17 @@ body {
   align-content: start;
 }
 
+.learning-status .circuit-meta {
+  margin-bottom: 0.45rem;
+  font-size: 1.15rem;
+}
+
+.learning-status .validation-ok,
+.learning-status .validation-error {
+  margin: 0.25rem 0 0.45rem;
+  font-size: 1.05rem;
+}
+
 .app-header {
   margin-bottom: 1.25rem;
 }

@@ -312,18 +312,33 @@ function App() {
           />
         </div>
         <section className="circuit-card">
-          <p className="circuit-meta">
-            Viewing: {activeCircuit.label} | Nodes: {activeCircuit.nodes.length} | Wires:{' '}
-            {activeCircuit.edges.length}
-          </p>
-          <p className={validation.isValid ? 'validation-ok' : 'validation-error'}>{truthTableStatus}</p>
-          <p className={allTruthTableChecksPass ? 'validation-ok' : 'validation-error'}>
-            {globalTruthTableStatus}
-          </p>
-          <p className={structuresDiffer ? 'validation-ok' : 'validation-error'}>{structureStatus}</p>
-          <p className={deterministicSteppingWorks ? 'validation-ok' : 'validation-error'}>
-            {steppingStatus}
-          </p>
+          <OutputInsightPanel inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
+          {mode === 'optimized' ? (
+            <section className="optimization-progress">
+              <p>
+                {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
+              </p>
+              <ol className="optimization-steps">
+                {optimizationNarrative.map((step, index) => (
+                  <li
+                    key={step}
+                    className={index === optimizedStageIndex ? 'optimization-step-active' : 'optimization-step'}
+                  >
+                    {step}
+                  </li>
+                ))}
+              </ol>
+              <p className="optimization-diff-note">
+                Added/merged (cyan): {optimizationFlash.mergedNodeIds.length} | Removed (red ghost):{' '}
+                {optimizationFlash.removedNodes.length}
+              </p>
+              <p className="optimization-diff-detail">
+                Merged labels: {mergedLabelSummary}
+                <br />
+                Removed labels: {removedLabelSummary}
+              </p>
+            </section>
+          ) : null}
           <div className="circuit-visual-wrap">
             {mode === 'optimized' ? (
               <button
@@ -357,35 +372,22 @@ function App() {
               }}
             />
           </div>
-          <OutputInsightPanel inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
-          {mode === 'optimized' ? (
-            <section className="optimization-progress">
-              <p>
-                {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
-              </p>
-              <ol className="optimization-steps">
-                {optimizationNarrative.map((step, index) => (
-                  <li
-                    key={step}
-                    className={index === optimizedStageIndex ? 'optimization-step-active' : 'optimization-step'}
-                  >
-                    {step}
-                  </li>
-                ))}
-              </ol>
-              <p className="optimization-diff-note">
-                Added/merged (cyan): {optimizationFlash.mergedNodeIds.length} | Removed (red ghost):{' '}
-                {optimizationFlash.removedNodes.length}
-              </p>
-              <p className="optimization-diff-detail">
-                Merged labels: {mergedLabelSummary}
-                <br />
-                Removed labels: {removedLabelSummary}
-              </p>
-            </section>
-          ) : null}
         </section>
         <div className="right-stack">
+          <section className="panel learning-status">
+            <p className="circuit-meta">
+              Viewing: {activeCircuit.label} | Nodes: {activeCircuit.nodes.length} | Wires:{' '}
+              {activeCircuit.edges.length}
+            </p>
+            <p className={validation.isValid ? 'validation-ok' : 'validation-error'}>{truthTableStatus}</p>
+            <p className={allTruthTableChecksPass ? 'validation-ok' : 'validation-error'}>
+              {globalTruthTableStatus}
+            </p>
+            <p className={structuresDiffer ? 'validation-ok' : 'validation-error'}>{structureStatus}</p>
+            <p className={deterministicSteppingWorks ? 'validation-ok' : 'validation-error'}>
+              {steppingStatus}
+            </p>
+          </section>
           <GateDetailsPanel
             selectedNode={selectedNode}
             outputValue={selectedNode ? simulationState.values[selectedNode.id] ?? 0 : 0}
