@@ -1,4 +1,10 @@
 import { useEffect, useState } from 'react';
+import {
+  globalTruthTableStatusMessage,
+  steppingStatusMessage,
+  structureStatusMessage,
+  truthTableStatusMessage,
+} from './app/status';
 import { CircuitViewport, EventLogPanel, GateDetailsPanel, InputsPanel, PlaybackControls } from './components';
 import { fullAdderCircuits, getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
@@ -47,6 +53,14 @@ function App() {
       demoNodeValues[activeEdge.to] = 1;
     }
   }
+  const truthTableStatus = truthTableStatusMessage(validation.isValid, validation.mismatches.length);
+  const globalTruthTableStatus = globalTruthTableStatusMessage(allTruthTableChecksPass);
+  const structureStatus = structureStatusMessage(
+    structuresDiffer,
+    fullAdderCircuits.primitive.nodes.length,
+    fullAdderCircuits.optimized.nodes.length,
+  );
+  const steppingStatus = steppingStatusMessage(deterministicSteppingWorks);
 
   const appendLog = (message: string) => {
     setEventLog((prev) => {
@@ -154,37 +168,25 @@ function App() {
           />
         </div>
         <section className="circuit-card">
-        <p className={validation.isValid ? 'validation-ok' : 'validation-error'}>
-          {validation.isValid
-            ? 'Truth table check: pass (all 8 input combinations)'
-            : `Truth table check: fail (${validation.mismatches.length} mismatch(es))`}
-        </p>
-        <p className={allTruthTableChecksPass ? 'validation-ok' : 'validation-error'}>
-          {allTruthTableChecksPass
-            ? 'Global check: Primitive and Optimized both match all 8 full-adder truth-table rows.'
-            : 'Global check: At least one mode fails truth-table validation.'}
-        </p>
-        <p className={structuresDiffer ? 'validation-ok' : 'validation-error'}>
-          {structuresDiffer
-            ? `Structure check: Primitive (${fullAdderCircuits.primitive.nodes.length} nodes) and Optimized (${fullAdderCircuits.optimized.nodes.length} nodes) differ.`
-            : 'Structure check: Primitive and Optimized graphs are not structurally distinct.'}
-        </p>
-        <p className={deterministicSteppingWorks ? 'validation-ok' : 'validation-error'}>
-          {deterministicSteppingWorks
-            ? 'Stepping check: repeated step sequences produce identical snapshots.'
-            : 'Stepping check: repeated step sequences diverge.'}
-        </p>
-        <CircuitViewport
-          circuit={activeCircuit}
-          activeSignals={demoSignals}
-          currentTime={animationTime}
-          nodeValues={demoNodeValues}
-          selectedNodeId={selectedNodeId}
-          onSelectNode={(nodeId) => {
-            setSelectedNodeId(nodeId);
-            appendLog(`Selected node: ${nodeId}`);
-          }}
-        />
+          <p className={validation.isValid ? 'validation-ok' : 'validation-error'}>{truthTableStatus}</p>
+          <p className={allTruthTableChecksPass ? 'validation-ok' : 'validation-error'}>
+            {globalTruthTableStatus}
+          </p>
+          <p className={structuresDiffer ? 'validation-ok' : 'validation-error'}>{structureStatus}</p>
+          <p className={deterministicSteppingWorks ? 'validation-ok' : 'validation-error'}>
+            {steppingStatus}
+          </p>
+          <CircuitViewport
+            circuit={activeCircuit}
+            activeSignals={demoSignals}
+            currentTime={animationTime}
+            nodeValues={demoNodeValues}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={(nodeId) => {
+              setSelectedNodeId(nodeId);
+              appendLog(`Selected node: ${nodeId}`);
+            }}
+          />
         </section>
         <GateDetailsPanel
           selectedNode={selectedNode}
