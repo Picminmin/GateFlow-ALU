@@ -48,3 +48,14 @@ export function runStepSequence(
 
   return frames;
 }
+
+export function verifyDeterministicStepping(params: {
+  circuit: CircuitGraph;
+  inputs: Record<string, LogicValue>;
+  steps: number;
+}): boolean {
+  const runA = runStepSequence(createStepPlaybackController(params), params.steps);
+  const runB = runStepSequence(createStepPlaybackController(params), params.steps);
+
+  return JSON.stringify(runA) === JSON.stringify(runB);
+}

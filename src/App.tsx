@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { CircuitViewport, EventLogPanel, GateDetailsPanel, InputsPanel, PlaybackControls } from './components';
 import { fullAdderCircuits, getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
-import { validateFullAdderCircuit } from './simulation';
+import { validateFullAdderCircuit, verifyDeterministicStepping } from './simulation';
 import type { WireSignal } from './types';
 import type { InputsPanelValues } from './components/panels/InputsPanel';
 
@@ -23,6 +23,15 @@ function App() {
   const structuresDiffer =
     fullAdderCircuits.primitive.nodes.length !== fullAdderCircuits.optimized.nodes.length ||
     fullAdderCircuits.primitive.edges.length !== fullAdderCircuits.optimized.edges.length;
+  const deterministicSteppingWorks = verifyDeterministicStepping({
+    circuit: activeCircuit,
+    inputs: {
+      'in-a': inputs.a,
+      'in-b': inputs.b,
+      'in-cin': inputs.cin,
+    },
+    steps: 5,
+  });
   const demoSignalEdge = activeCircuit.edges[0]?.id;
   const demoSignals: WireSignal[] = demoSignalEdge
     ? [{ edgeId: demoSignalEdge, value: 1, startTime: 0, endTime: 1 }]
@@ -159,6 +168,11 @@ function App() {
           {structuresDiffer
             ? `Structure check: Primitive (${fullAdderCircuits.primitive.nodes.length} nodes) and Optimized (${fullAdderCircuits.optimized.nodes.length} nodes) differ.`
             : 'Structure check: Primitive and Optimized graphs are not structurally distinct.'}
+        </p>
+        <p className={deterministicSteppingWorks ? 'validation-ok' : 'validation-error'}>
+          {deterministicSteppingWorks
+            ? 'Stepping check: repeated step sequences produce identical snapshots.'
+            : 'Stepping check: repeated step sequences diverge.'}
         </p>
         <CircuitViewport
           circuit={activeCircuit}
