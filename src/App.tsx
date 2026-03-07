@@ -4,9 +4,16 @@ import { fullAdderStaticCircuit } from './circuits/fullAdder';
 function App() {
   return (
     <main className="app-shell">
-      <h1>GateFlow ALU</h1>
-      <p>Static 1-bit full adder view</p>
-      <CircuitViewport circuit={fullAdderStaticCircuit} />
+      <header className="app-header">
+        <p className="app-eyebrow">GateFlow ALU MVP</p>
+        <h1>1-bit Full Adder Circuit</h1>
+        <p className="app-description">
+          This static view shows the full-adder gate graph before simulation and animation are enabled.
+        </p>
+      </header>
+      <section className="circuit-card">
+        <CircuitViewport circuit={fullAdderStaticCircuit} />
+      </section>
     </main>
   );
 }

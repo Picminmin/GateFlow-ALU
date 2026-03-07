@@ -16,23 +16,45 @@ body {
 
 #root {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 1.5rem;
+  padding: 2rem 1rem;
+  background: radial-gradient(circle at top, #eff6ff 0%, #f8fafc 45%, #eef2ff 100%);
 }
 
 .app-shell {
-  width: min(980px, 100%);
+  width: min(1040px, 100%);
+  margin: 0 auto;
+}
+
+.app-header {
+  margin-bottom: 1.25rem;
+}
+
+.app-eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4f46e5;
+  font-weight: 700;
 }
 
 .app-shell h1 {
-  margin: 0;
+  margin: 0.25rem 0 0.5rem;
   font-size: 1.75rem;
 }
 
-.app-shell p {
-  margin: 0.25rem 0 1rem;
-  color: #4b5563;
+.app-description {
+  margin: 0;
+  color: #374151;
+  max-width: 60ch;
+}
+
+.circuit-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  padding: 0.75rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
 .circuit-viewport {
