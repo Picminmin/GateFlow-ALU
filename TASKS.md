@@ -31,7 +31,7 @@
 - [x] Implement gate evaluation logic
 - [x] Implement discrete-event scheduling
 - [x] Implement propagation delays
-- [ ] Implement simulation state updates over time
+- [x] Implement simulation state updates over time
 - [ ] Ensure outputs are logically correct
 
 ## Phase 5: Animation

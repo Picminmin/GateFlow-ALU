@@ -1,4 +1,7 @@
-import type { CircuitGraph, LogicValue, SimulationState } from '../types';
+import type { CircuitGraph, LogicValue, SignalChangeEvent, SimulationState, WireSignal } from '../types';
+import { createDelayedSignalEvent, computePropagationTime } from './delays';
+import { evaluateNodeOutput } from './gates';
+import { dequeueNextEvent, enqueueEvent } from './scheduler';
 import { createInitialSimulationState } from './state';
 
 export interface SimulationEngine {
@@ -6,61 +9,159 @@ export interface SimulationEngine {
   setInputValue(nodeId: string, value: LogicValue): void;
   setInputs(values: Record<string, LogicValue>): void;
   reset(): void;
+  step(): SimulationState;
   snapshot(): SimulationState;
 }
 
 export function createSimulationEngine(): SimulationEngine {
   let circuit: CircuitGraph | null = null;
   let state = createInitialSimulationState();
+  let eventCounter = 0;
 
-  function assignInputValues(nextValues: Record<string, LogicValue>): void {
+  function nextEventId(prefix: string): string {
+    eventCounter += 1;
+    return `${prefix}-${eventCounter}`;
+  }
+
+  function initializeValues(nextCircuit: CircuitGraph): Record<string, LogicValue> {
+    const allNodeIds = nextCircuit.nodes.map((node) => node.id);
+    return allNodeIds.reduce<Record<string, LogicValue>>((acc, nodeId) => {
+      acc[nodeId] = 0;
+      return acc;
+    }, {});
+  }
+
+  function queueInputEvent(nodeId: string, value: LogicValue): void {
     if (!circuit) {
       return;
     }
 
-    const allowedInputs = new Set(circuit.inputNodeIds);
-    const mergedValues = { ...state.values };
+    if (!circuit.inputNodeIds.includes(nodeId)) {
+      return;
+    }
 
-    Object.entries(nextValues).forEach(([nodeId, value]) => {
-      if (allowedInputs.has(nodeId)) {
-        mergedValues[nodeId] = value;
-      }
-    });
+    const currentValue = state.values[nodeId] ?? 0;
+    if (currentValue === value) {
+      return;
+    }
+
+    const event: SignalChangeEvent = {
+      id: nextEventId('input'),
+      time: state.elapsedTime,
+      nodeId,
+      value,
+    };
 
     state = {
       ...state,
-      values: mergedValues,
+      eventQueue: enqueueEvent(state.eventQueue, event),
+    };
+  }
+
+  function appendActiveSignal(edgeId: string, value: LogicValue, startTime: number, endTime: number): void {
+    const signal: WireSignal = {
+      edgeId,
+      value,
+      startTime,
+      endTime,
+    };
+
+    state = {
+      ...state,
+      activeSignals: [...state.activeSignals, signal],
     };
   }
 
   return {
     setCircuit(nextCircuit) {
       circuit = nextCircuit;
-      const resetState = createInitialSimulationState();
       state = {
-        ...resetState,
-        values: circuit.inputNodeIds.reduce<Record<string, LogicValue>>((acc, nodeId) => {
-          acc[nodeId] = 0;
-          return acc;
-        }, {}),
+        ...createInitialSimulationState(),
+        values: initializeValues(nextCircuit),
       };
+      eventCounter = 0;
     },
     setInputValue(nodeId, value) {
-      assignInputValues({ [nodeId]: value });
+      queueInputEvent(nodeId, value);
     },
     setInputs(values) {
-      assignInputValues(values);
+      Object.entries(values).forEach(([nodeId, value]) => {
+        queueInputEvent(nodeId, value);
+      });
     },
     reset() {
-      state = createInitialSimulationState();
-      if (circuit) {
-        assignInputValues(
-          circuit.inputNodeIds.reduce<Record<string, LogicValue>>((acc, nodeId) => {
-            acc[nodeId] = 0;
-            return acc;
-          }, {}),
-        );
+      if (!circuit) {
+        state = createInitialSimulationState();
+        return;
       }
+
+      state = {
+        ...createInitialSimulationState(),
+        values: initializeValues(circuit),
+      };
+      eventCounter = 0;
+    },
+    step() {
+      if (!circuit) {
+        return state;
+      }
+      const activeCircuit = circuit;
+
+      const { nextEvent, remainingQueue } = dequeueNextEvent(state.eventQueue);
+      if (!nextEvent) {
+        return state;
+      }
+
+      const updatedValues = {
+        ...state.values,
+        [nextEvent.nodeId]: nextEvent.value,
+      };
+
+      const scheduledKeys = new Set<string>();
+      let nextQueue = remainingQueue;
+
+      const outgoingEdges = activeCircuit.edges.filter((edge) => edge.from === nextEvent.nodeId);
+      outgoingEdges.forEach((edge) => {
+        const targetValue = evaluateNodeOutput(activeCircuit, edge.to, updatedValues);
+        const currentTargetValue = updatedValues[edge.to] ?? 0;
+
+        if (targetValue === currentTargetValue) {
+          return;
+        }
+
+        const delayedEvent = createDelayedSignalEvent({
+          id: nextEventId('prop'),
+          currentTime: nextEvent.time,
+          circuit: activeCircuit,
+          targetNodeId: edge.to,
+          value: targetValue,
+          sourceNodeId: edge.from,
+        });
+
+        const signature = `${delayedEvent.nodeId}:${delayedEvent.time}:${delayedEvent.value}`;
+        if (scheduledKeys.has(signature)) {
+          return;
+        }
+
+        scheduledKeys.add(signature);
+        nextQueue = enqueueEvent(nextQueue, delayedEvent);
+
+        appendActiveSignal(
+          edge.id,
+          delayedEvent.value,
+          nextEvent.time,
+          computePropagationTime(nextEvent.time, activeCircuit, edge.to),
+        );
+      });
+
+      state = {
+        ...state,
+        elapsedTime: nextEvent.time,
+        values: updatedValues,
+        eventQueue: nextQueue,
+      };
+
+      return state;
     },
     snapshot() {
       return state;
