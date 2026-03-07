@@ -38,7 +38,7 @@
 - [x] Represent active signals as moving dots on wires
 - [x] Highlight active wires
 - [x] Highlight gate outputs when active
-- [ ] Add time-based animation loop
+- [x] Add time-based animation loop
 - [ ] Support deterministic step-by-step playback
 
 ## Phase 6: Controls and UI

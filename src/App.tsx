@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CircuitViewport } from './components';
 import { getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
@@ -7,6 +7,7 @@ import type { WireSignal } from './types';
 
 function App() {
   const [mode, setMode] = useState<FullAdderMode>('primitive');
+  const [animationTime, setAnimationTime] = useState(0);
   const activeCircuit = getFullAdderCircuit(mode);
   const validation = validateFullAdderCircuit(activeCircuit);
   const demoSignalEdge = activeCircuit.edges[0]?.id;
@@ -24,6 +25,24 @@ function App() {
       demoNodeValues[activeEdge.to] = 1;
     }
   }
+
+  useEffect(() => {
+    let frameId = 0;
+    let startTime = 0;
+
+    const tick = (timestamp: number) => {
+      if (startTime === 0) {
+        startTime = timestamp;
+      }
+
+      const elapsedSeconds = (timestamp - startTime) / 1000;
+      setAnimationTime(elapsedSeconds % 1);
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, []);
 
   return (
     <main className="app-shell">
@@ -66,7 +85,7 @@ function App() {
         <CircuitViewport
           circuit={activeCircuit}
           activeSignals={demoSignals}
-          currentTime={0.5}
+          currentTime={animationTime}
           nodeValues={demoNodeValues}
         />
       </section>
