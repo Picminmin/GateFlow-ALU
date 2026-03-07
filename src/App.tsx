@@ -20,6 +20,9 @@ function App() {
   const primitiveValidation = validateFullAdderCircuit(fullAdderCircuits.primitive);
   const optimizedValidation = validateFullAdderCircuit(fullAdderCircuits.optimized);
   const allTruthTableChecksPass = primitiveValidation.isValid && optimizedValidation.isValid;
+  const structuresDiffer =
+    fullAdderCircuits.primitive.nodes.length !== fullAdderCircuits.optimized.nodes.length ||
+    fullAdderCircuits.primitive.edges.length !== fullAdderCircuits.optimized.edges.length;
   const demoSignalEdge = activeCircuit.edges[0]?.id;
   const demoSignals: WireSignal[] = demoSignalEdge
     ? [{ edgeId: demoSignalEdge, value: 1, startTime: 0, endTime: 1 }]
@@ -151,6 +154,11 @@ function App() {
           {allTruthTableChecksPass
             ? 'Global check: Primitive and Optimized both match all 8 full-adder truth-table rows.'
             : 'Global check: At least one mode fails truth-table validation.'}
+        </p>
+        <p className={structuresDiffer ? 'validation-ok' : 'validation-error'}>
+          {structuresDiffer
+            ? `Structure check: Primitive (${fullAdderCircuits.primitive.nodes.length} nodes) and Optimized (${fullAdderCircuits.optimized.nodes.length} nodes) differ.`
+            : 'Structure check: Primitive and Optimized graphs are not structurally distinct.'}
         </p>
         <CircuitViewport
           circuit={activeCircuit}

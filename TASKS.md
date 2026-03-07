@@ -50,7 +50,7 @@
 
 ## Phase 7: Validation and cleanup
 - [x] Confirm Sum and Cout are correct for all 8 input combinations
-- [ ] Confirm Primitive and Optimized modes differ structurally
+- [x] Confirm Primitive and Optimized modes differ structurally
 - [ ] Confirm stepping works reliably
 - [ ] Refactor for readability
 - [ ] Improve labels and visual clarity
