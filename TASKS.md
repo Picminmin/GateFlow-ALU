@@ -29,7 +29,7 @@
 ## Phase 4: Simulation engine
 - [x] Implement input assignment logic
 - [x] Implement gate evaluation logic
-- [ ] Implement discrete-event scheduling
+- [x] Implement discrete-event scheduling
 - [ ] Implement propagation delays
 - [ ] Implement simulation state updates over time
 - [ ] Ensure outputs are logically correct
