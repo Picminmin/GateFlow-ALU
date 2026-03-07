@@ -1,4 +1,5 @@
 import type { CircuitGraph, CircuitNode } from '../../types';
+import { getCircuitBounds } from '../../renderer';
 
 interface CircuitViewportProps {
   circuit: CircuitGraph;
@@ -12,11 +13,28 @@ function nodeClassName(node: CircuitNode): string {
 
 export function CircuitViewport({ circuit }: CircuitViewportProps) {
   const nodeById = new Map(circuit.nodes.map((node) => [node.id, node]));
+  const bounds = getCircuitBounds(circuit);
+  const padding = 80;
+  const viewBoxX = bounds.minX - padding;
+  const viewBoxY = bounds.minY - padding;
+  const viewBoxWidth = bounds.maxX - bounds.minX + padding * 2;
+  const viewBoxHeight = bounds.maxY - bounds.minY + padding * 2;
 
   return (
     <section className="circuit-viewport" aria-label="Circuit viewport">
-      <svg viewBox="0 0 780 420" role="img" aria-label={circuit.label}>
-        <rect x="0" y="0" width="780" height="420" className="circuit-background" rx="16" />
+      <svg
+        viewBox={`${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`}
+        role="img"
+        aria-label={circuit.label}
+      >
+        <rect
+          x={viewBoxX}
+          y={viewBoxY}
+          width={viewBoxWidth}
+          height={viewBoxHeight}
+          className="circuit-background"
+          rx="16"
+        />
 
         {circuit.edges.map((edge) => {
           const fromNode = nodeById.get(edge.from);

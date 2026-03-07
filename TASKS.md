@@ -24,7 +24,7 @@
 - [x] Define Primitive mode circuit graph
 - [x] Define Optimized mode circuit graph
 - [x] Implement mode switch UI
-- [ ] Make mode switching replace the actual rendered graph
+- [x] Make mode switching replace the actual rendered graph
 
 ## Phase 4: Simulation engine
 - [ ] Implement input assignment logic

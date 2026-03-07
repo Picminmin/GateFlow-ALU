@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { CircuitViewport } from './components';
-import { fullAdderStaticCircuit } from './circuits/fullAdder';
+import { getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
 
 function App() {
   const [mode, setMode] = useState<FullAdderMode>('primitive');
+  const activeCircuit = getFullAdderCircuit(mode);
 
   return (
     <main className="app-shell">
@@ -39,7 +40,7 @@ function App() {
         </fieldset>
       </header>
       <section className="circuit-card">
-        <CircuitViewport circuit={fullAdderStaticCircuit} />
+        <CircuitViewport circuit={activeCircuit} />
       </section>
     </main>
   );
