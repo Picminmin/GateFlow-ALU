@@ -1,23 +1,20 @@
-# GateFlow ALU
+﻿# GateFlow ALU
 
 GateFlow ALU is an educational web app that visualizes a **1-bit full adder** at gate level with interactive simulation.
 
 ## Demo / Screenshots
 
-> Replace these placeholder paths with your actual assets.
+### Main View
+![GateFlow Main UI](./docs/images/gateflow-main-ui.png)
 
-### Screenshot
+### Additional Views
+![GateFlow Overview](./docs/images/gateflow-overview.png)
+![GateFlow Circuit Focus](./docs/images/gateflow-circuit-focus.png)
+![GateFlow Optimized Stages](./docs/images/gateflow-optimized-stages.png)
+![GateFlow Japanese UI](./docs/images/gateflow-ja-ui.png)
 
-![GateFlow ALU Screenshot](./docs/images/gateflow-screenshot.png)
-
-### Demo GIF
-
-![GateFlow ALU Demo](./docs/images/gateflow-demo.gif)
-
-### Asset Notes
-- Recommended screenshot width: 1280px+
-- Recommended GIF duration: 8-15s
-- Keep GIF under ~15MB for smooth GitHub rendering
+### Demo GIF (optional)
+> Add your GIF at `./docs/images/gateflow-demo.gif` if needed.
 
 ---
 
@@ -64,7 +61,7 @@ npm run preview
 2. `Playback` で再生、停止、ステップ実行を行う  
 3. 回路上のゲートをクリックして `Gate Details` を確認する  
 4. `Primitive/Optimized` を切り替えて、回路構造と最適化段階を比較する  
-5. ヘッダーの `日本語 / EN` ボタンでUI言語を切り替える  
+5. ヘッダーの `日本語 / EN` ボタンでUI言語を切り替える
 
 ### 注意
 - このリポジトリのMVPは **1-bit Full Adder に限定** されています。
