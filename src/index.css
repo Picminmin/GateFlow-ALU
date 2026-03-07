@@ -354,6 +354,23 @@ body {
   margin-bottom: 1rem;
 }
 
+.cost-insight-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.insight-toggle {
+  border: 1px solid #94a3b8;
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
 .bitwidth-control {
   display: grid;
   gap: 0.3rem;
@@ -384,6 +401,20 @@ body {
   font-weight: 800;
 }
 
+.formula-box {
+  margin-top: 0.55rem;
+  background: #e2e8f0;
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.92rem;
+  color: #0f172a;
+}
+
+.formula-box p {
+  margin: 0.15rem 0;
+}
+
 .carry-caption {
   margin: 0.6rem 0 0.25rem;
   font-size: 0.92rem;
@@ -406,6 +437,66 @@ body {
 .carry-cell-active {
   background: #22d3ee;
   box-shadow: 0 0 8px rgba(34, 211, 238, 0.75);
+}
+
+.curve-card {
+  margin-top: 0.55rem;
+}
+
+.curve-bg {
+  fill: #020617;
+}
+
+.curve-axis {
+  stroke: #475569;
+  stroke-width: 1.5;
+}
+
+.curve-add {
+  fill: none;
+  stroke: #f97316;
+  stroke-width: 3;
+}
+
+.curve-mul {
+  fill: none;
+  stroke: #a855f7;
+  stroke-width: 3;
+}
+
+.curve-add-dot {
+  fill: #fb923c;
+  stroke: #ffffff;
+  stroke-width: 1;
+}
+
+.curve-mul-dot {
+  fill: #c084fc;
+  stroke: #ffffff;
+  stroke-width: 1;
+}
+
+.curve-title {
+  fill: #e2e8f0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.curve-label {
+  fill: #94a3b8;
+  font-size: 13px;
+}
+
+.curve-add-legend {
+  fill: #fb923c;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.curve-mul-legend {
+  fill: #c084fc;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 @media (max-width: 1024px) {
