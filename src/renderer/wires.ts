@@ -71,21 +71,35 @@ export function buildRoutedWire(start: Point, end: Point, edgeId: string): Route
   }
 
   const hash = hashSeed(edgeId);
+  const horizontalSpan = Math.max(1, end.x - start.x);
   const verticalGap = Math.abs(end.y - start.y);
-  const laneOffset = verticalGap <= 18 ? 0 : ((hash % 5) - 2) * 8;
-  const spanX = Math.max(70, (end.x - start.x) * 0.45);
-  const bendX = Math.min(end.x - 24, start.x + spanX);
-  const targetY = end.y + laneOffset;
-  const nearEndX = Math.max(start.x + 28, end.x - 24);
 
-  const rawPoints: Point[] = [
-    start,
-    { x: bendX, y: start.y },
-    { x: bendX, y: targetY },
-    { x: nearEndX, y: targetY },
-    { x: nearEndX, y: end.y },
-    end,
-  ];
+  // Rightward-first routing:
+  // 1) move right from source
+  // 2) use one vertical trunk in the middle area
+  // 3) move right again toward destination
+  // 4) final vertical align at destination X
+  const laneOffset = verticalGap <= 20 ? 0 : ((hash % 3) - 1) * 6;
+  const trunkX = Math.max(start.x + 32, Math.min(end.x - 28, start.x + horizontalSpan * 0.62));
+  const targetY = end.y + laneOffset;
+  const approachX = Math.max(start.x + 40, end.x - 12);
+
+  const rawPoints: Point[] = [start, { x: trunkX, y: start.y }];
+
+  if (targetY !== start.y) {
+    rawPoints.push({ x: trunkX, y: targetY });
+  }
+
+  if (approachX !== trunkX || targetY !== end.y) {
+    rawPoints.push({ x: approachX, y: targetY });
+  }
+
+  if (targetY !== end.y) {
+    rawPoints.push({ x: approachX, y: end.y });
+  }
+
+  rawPoints.push(end);
+
   const points = normalizePoints(rawPoints);
 
   const pathD = points
