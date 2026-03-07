@@ -7,7 +7,7 @@
 - [x] Confirm app runs locally with `npm run dev`
 
 ## Phase 1: Core types and architecture
-- [ ] Define shared TypeScript types for nodes, edges, circuits, events, and simulation state
+- [x] Define shared TypeScript types for nodes, edges, circuits, events, and simulation state
 - [ ] Create circuit definition module structure
 - [ ] Create simulation engine module structure
 - [ ] Create renderer module structure
