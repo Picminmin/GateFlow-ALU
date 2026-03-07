@@ -6,6 +6,7 @@ interface PlaybackControlsProps {
   onReset: () => void;
   onStep: () => void;
   onSpeedChange: (nextSpeed: number) => void;
+  lang: 'en' | 'ja';
 }
 
 export function PlaybackControls({
@@ -16,26 +17,27 @@ export function PlaybackControls({
   onReset,
   onStep,
   onSpeedChange,
+  lang,
 }: PlaybackControlsProps) {
   return (
-    <section className="panel" aria-label="Playback controls">
-      <h2>Playback</h2>
+    <section className="panel" aria-label={lang === 'ja' ? '再生コントロール' : 'Playback controls'}>
+      <h2>{lang === 'ja' ? '再生' : 'Playback'}</h2>
       <div className="controls-grid">
         <button type="button" onClick={onPlay} disabled={isPlaying}>
-          Play
+          {lang === 'ja' ? '再生' : 'Play'}
         </button>
         <button type="button" onClick={onPause} disabled={!isPlaying}>
-          Pause
+          {lang === 'ja' ? '一時停止' : 'Pause'}
         </button>
         <button type="button" onClick={onReset}>
-          Reset
+          {lang === 'ja' ? 'リセット' : 'Reset'}
         </button>
         <button type="button" onClick={onStep}>
-          Step
+          {lang === 'ja' ? 'ステップ' : 'Step'}
         </button>
       </div>
       <label className="speed-control">
-        Speed: {speed.toFixed(2)}x
+        {lang === 'ja' ? '速度' : 'Speed'}: {speed.toFixed(2)}x
         <input
           type="range"
           min={0.25}

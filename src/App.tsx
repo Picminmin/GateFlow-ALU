@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   globalTruthTableStatusMessage,
+  type Language,
   steppingStatusMessage,
   structureStatusMessage,
   truthTableStatusMessage,
@@ -8,11 +9,11 @@ import {
 import {
   CircuitViewport,
   CostInsightPanel,
+  EventLogPanel,
   GateDetailsPanel,
   InputsPanel,
   OutputInsightPanel,
   PlaybackControls,
-  EventLogPanel,
 } from './components';
 import { fullAdderCircuits, getFullAdderCircuit, getOptimizedTransitionCircuits } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
@@ -24,11 +25,13 @@ import {
   validateFullAdderCircuit,
   verifyDeterministicStepping,
 } from './simulation';
-import type { CircuitNode, SimulationState } from './types';
-import type { LogicValue } from './types';
+import type { CircuitNode, LogicValue, SimulationState } from './types';
 import type { InputsPanelValues } from './components/panels/InputsPanel';
 
 function App() {
+  const [lang, setLang] = useState<Language>(() =>
+    typeof document !== 'undefined' && document.documentElement.lang.startsWith('ja') ? 'ja' : 'en',
+  );
   const [mode, setMode] = useState<FullAdderMode>('primitive');
   const [inputs, setInputs] = useState<InputsPanelValues>({ a: 0, b: 0, cin: 0 });
   const [animationTime, setAnimationTime] = useState(0);
@@ -46,11 +49,13 @@ function App() {
   const [simulationState, setSimulationState] = useState<SimulationState>(createInitialSimulationState());
   const engineRef = useRef<SimulationEngine>(createSimulationEngine());
   const simTimeRef = useRef(0);
+
   const activeCircuit = getFullAdderCircuit(mode);
   const optimizedStages = getOptimizedTransitionCircuits();
   const showOptimizedTransition = mode === 'optimized' && optimizedStageIndex < optimizedStages.length - 1;
   const displayedCircuit = mode === 'optimized' ? optimizedStages[optimizedStageIndex] : activeCircuit;
   const selectedNode = activeCircuit.nodes.find((node) => node.id === selectedNodeId) ?? null;
+
   const validation = validateFullAdderCircuit(activeCircuit);
   const primitiveValidation = validateFullAdderCircuit(fullAdderCircuits.primitive);
   const optimizedValidation = validateFullAdderCircuit(fullAdderCircuits.optimized);
@@ -67,38 +72,57 @@ function App() {
     },
     steps: 5,
   });
-  const truthTableStatus = truthTableStatusMessage(validation.isValid, validation.mismatches.length);
-  const globalTruthTableStatus = globalTruthTableStatusMessage(allTruthTableChecksPass);
+
+  const truthTableStatus = truthTableStatusMessage(validation.isValid, validation.mismatches.length, lang);
+  const globalTruthTableStatus = globalTruthTableStatusMessage(allTruthTableChecksPass, lang);
   const structureStatus = structureStatusMessage(
     structuresDiffer,
     fullAdderCircuits.primitive.nodes.length,
     fullAdderCircuits.optimized.nodes.length,
+    lang,
   );
-  const steppingStatus = steppingStatusMessage(deterministicSteppingWorks);
+  const steppingStatus = steppingStatusMessage(deterministicSteppingWorks, lang);
+
   const costInsight = estimateCostInsight({
     bitWidth,
     cin: inputs.cin,
     currentTime: animationTime,
   });
+
   const actualSum = (simulationState.values['out-sum'] ?? null) as LogicValue | null;
   const actualCout = (simulationState.values['out-cout'] ?? null) as LogicValue | null;
   const modeIsOptimized = mode === 'optimized';
-  const optimizationNarrative = [
-    'Stage 1: Start from canonical SOP-style full-adder expansion.',
-    'Stage 2: Remove duplicated Sum branch terms.',
-    'Stage 3: Merge carry contributors before final OR.',
-    'Stage 4: Rewrite as XOR-based minimal graph for Sum/Cout.',
-  ];
+
+  const optimizationNarrative =
+    lang === 'ja'
+      ? [
+          'Stage 1: 標準的なSOP展開の全加算器から開始。',
+          'Stage 2: Sum 側の重複項を削除。',
+          'Stage 3: 最終OR前に Carry 項を統合。',
+          'Stage 4: XORベースの最小グラフへ書き換え。',
+        ]
+      : [
+          'Stage 1: Start from canonical SOP-style full-adder expansion.',
+          'Stage 2: Remove duplicated Sum branch terms.',
+          'Stage 3: Merge carry contributors before final OR.',
+          'Stage 4: Rewrite as XOR-based minimal graph for Sum/Cout.',
+        ];
+
   const mergedLabelSummary =
     optimizationFlash.mergedNodeIds.length > 0
       ? optimizationFlash.mergedNodeIds
           .map((id) => displayedCircuit.nodes.find((node) => node.id === id)?.label ?? id)
           .join(', ')
-      : 'None';
+      : lang === 'ja'
+        ? 'なし'
+        : 'None';
+
   const removedLabelSummary =
     optimizationFlash.removedNodes.length > 0
       ? optimizationFlash.removedNodes.map((node) => node.label).join(', ')
-      : 'None';
+      : lang === 'ja'
+        ? 'なし'
+        : 'None';
 
   const appendLog = (message: string) => {
     setEventLog((prev) => {
@@ -106,6 +130,10 @@ function App() {
       return next.slice(-20);
     });
   };
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const initializeSimulation = useCallback(() => {
     const engine = engineRef.current;
@@ -123,7 +151,11 @@ function App() {
 
   useEffect(() => {
     setSelectedNodeId(null);
-    appendLog(`Mode switched to ${mode}`);
+    appendLog(
+      lang === 'ja'
+        ? `モードを ${mode === 'primitive' ? 'Primitive' : 'Optimized'} に切替`
+        : `Mode switched to ${mode}`,
+    );
     if (mode === 'optimized') {
       setOptimizedStageIndex(0);
       setIsOptimizationExpanded(true);
@@ -131,7 +163,7 @@ function App() {
       setOptimizedStageIndex(optimizedStages.length - 1);
       setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
     }
-  }, [mode]);
+  }, [mode, lang, optimizedStages.length]);
 
   useEffect(() => {
     if (mode !== 'optimized') {
@@ -158,16 +190,20 @@ function App() {
     const current = optimizedStages[optimizedStageIndex];
     const previousNodeIds = new Set(previous.nodes.map((node) => node.id));
     const currentNodeIds = new Set(current.nodes.map((node) => node.id));
+
     const mergedNodeIds = current.nodes
       .filter((node) => !previousNodeIds.has(node.id) && node.type !== 'INPUT' && node.type !== 'OUTPUT')
       .map((node) => node.id);
+
     const removedNodes = previous.nodes.filter(
       (node) => !currentNodeIds.has(node.id) && node.type !== 'INPUT' && node.type !== 'OUTPUT',
     );
 
     setOptimizationFlash({ mergedNodeIds, removedNodes });
     appendLog(
-      `Optimization stage ${optimizedStageIndex + 1}: +${mergedNodeIds.length} merged / -${removedNodes.length} removed`,
+      lang === 'ja'
+        ? `最適化ステージ ${optimizedStageIndex + 1}: 統合 +${mergedNodeIds.length} / 削除 -${removedNodes.length}`
+        : `Optimization stage ${optimizedStageIndex + 1}: +${mergedNodeIds.length} merged / -${removedNodes.length} removed`,
     );
 
     const clearTimer = window.setTimeout(() => {
@@ -175,7 +211,7 @@ function App() {
     }, 1700);
 
     return () => window.clearTimeout(clearTimer);
-  }, [mode, optimizedStageIndex, optimizedStages]);
+  }, [mode, optimizedStageIndex, optimizedStages, lang]);
 
   useEffect(() => {
     initializeSimulation();
@@ -222,13 +258,13 @@ function App() {
     setSimulationState(nextState);
     simTimeRef.current = nextState.elapsedTime;
     setAnimationTime(simTimeRef.current);
-    appendLog('Step executed');
+    appendLog(lang === 'ja' ? 'ステップを実行' : 'Step executed');
   };
 
   const handleReset = () => {
     initializeSimulation();
     setIsPlaying(false);
-    appendLog('Playback reset');
+    appendLog(lang === 'ja' ? '再生をリセット' : 'Playback reset');
   };
 
   const circuitFigure = (
@@ -240,10 +276,10 @@ function App() {
           onClick={() => {
             setOptimizedStageIndex(0);
             setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
-            appendLog('Optimization replay restarted');
+            appendLog(lang === 'ja' ? '最適化リプレイを開始' : 'Optimization replay restarted');
           }}
         >
-          Replay Optimization
+          {lang === 'ja' ? '最適化を再生' : 'Replay Optimization'}
         </button>
       ) : null}
       <CircuitViewport
@@ -261,7 +297,7 @@ function App() {
         selectedNodeId={selectedNodeId}
         onSelectNode={(nodeId) => {
           setSelectedNodeId(nodeId);
-          appendLog(`Selected node: ${nodeId}`);
+          appendLog(lang === 'ja' ? `ノード選択: ${nodeId}` : `Selected node: ${nodeId}`);
         }}
       />
     </div>
@@ -273,14 +309,34 @@ function App() {
         <p className="app-eyebrow">GateFlow ALU MVP</p>
         <h1>1-bit Full Adder Circuit</h1>
         <p className="app-description">
-          This static view shows the full-adder gate graph before simulation and animation are enabled.
+          {lang === 'ja'
+            ? 'この画面は、シミュレーション/アニメーション実行前の1-bit全加算器ゲートグラフを表示します。'
+            : 'This static view shows the full-adder gate graph before simulation and animation are enabled.'}
         </p>
         <p className="calc-context">
-          Base-2 calculation context: this animation is a single-bit column (1-digit) full adder.
-          It computes <code>A + B + Cin -&gt; Sum (this digit)</code> and <code>Cout (next digit carry)</code>.
+          {lang === 'ja'
+            ? '2進数の文脈: このアニメーションは単一桁（1-bit列）の全加算器です。'
+            : 'Base-2 calculation context: this animation is a single-bit column (1-digit) full adder.'}{' '}
+          {lang === 'ja' ? (
+            <>
+              <code>A + B + Cin -&gt; Sum（この桁）</code> と <code>Cout（次桁への繰り上がり）</code> を計算します。
+            </>
+          ) : (
+            <>
+              It computes <code>A + B + Cin -&gt; Sum (this digit)</code> and <code>Cout (next digit carry)</code>.
+            </>
+          )}
         </p>
+        <div className="lang-switcher" role="group" aria-label={lang === 'ja' ? '言語切替' : 'Language switch'}>
+          <button type="button" className={lang === 'ja' ? 'lang-btn active' : 'lang-btn'} onClick={() => setLang('ja')}>
+            日本語
+          </button>
+          <button type="button" className={lang === 'en' ? 'lang-btn active' : 'lang-btn'} onClick={() => setLang('en')}>
+            EN
+          </button>
+        </div>
         <fieldset className="mode-switcher">
-          <legend>Mode</legend>
+          <legend>{lang === 'ja' ? 'モード' : 'Mode'}</legend>
           <label>
             <input
               type="radio"
@@ -305,63 +361,92 @@ function App() {
         <section className={modeIsOptimized ? 'mode-guide mode-guide-optimized' : 'mode-guide'}>
           <p className="mode-guide-title">
             {modeIsOptimized
-              ? 'Optimized mode: gate count/depth minimized'
-              : 'Primitive mode: explicit step-by-step gate expansion'}
+              ? lang === 'ja'
+                ? 'Optimized モード: ゲート数/深さを最小化'
+                : 'Optimized mode: gate count/depth minimized'
+              : lang === 'ja'
+                ? 'Primitive モード: ステップ単位の明示的ゲート展開'
+                : 'Primitive mode: explicit step-by-step gate expansion'}
           </p>
           <details className="mode-guide-details">
-            <summary>How Optimized is derived</summary>
+            <summary>{lang === 'ja' ? 'Optimized の導出方法' : 'How Optimized is derived'}</summary>
             <p>
-              Full-adder carry is transformed from <code>AB + ACin + BCin</code> to
-              <code> AB + Cin(A xor B)</code>. This removes redundant gates and shortens propagation.
+              {lang === 'ja' ? '全加算器の Carry は ' : 'Full-adder carry is transformed from '}
+              <code>AB + ACin + BCin</code> {lang === 'ja' ? 'から ' : 'to'}
+              <code> AB + Cin(A xor B)</code>
+              {lang === 'ja'
+                ? ' へ変形されます。冗長ゲートを削減し、伝播経路を短縮します。'
+                : '. This removes redundant gates and shortens propagation.'}
             </p>
             <p>
-              In this app, Optimized uses a distinct circuit graph with fewer nodes and shallower carry
-              path than Primitive.
+              {lang === 'ja'
+                ? 'このアプリでは Optimized は Primitive とは別グラフを使い、ノード数と Carry 経路の深さを削減します。'
+                : 'In this app, Optimized uses a distinct circuit graph with fewer nodes and shallower carry path than Primitive.'}
             </p>
           </details>
         </section>
       </header>
+
       <div className="main-layout">
         <div className="left-stack">
           <InputsPanel
+            lang={lang}
             values={inputs}
             onChange={(nextValues) => {
               setInputs(nextValues);
-              appendLog(`Inputs updated: A=${nextValues.a} B=${nextValues.b} Cin=${nextValues.cin}`);
+              appendLog(
+                lang === 'ja'
+                  ? `入力更新: A=${nextValues.a} B=${nextValues.b} Cin=${nextValues.cin}`
+                  : `Inputs updated: A=${nextValues.a} B=${nextValues.b} Cin=${nextValues.cin}`,
+              );
             }}
           />
           <PlaybackControls
+            lang={lang}
             isPlaying={isPlaying}
             speed={speed}
             onPlay={() => {
               setIsPlaying(true);
-              appendLog('Playback started');
+              appendLog(lang === 'ja' ? '再生開始' : 'Playback started');
             }}
             onPause={() => {
               setIsPlaying(false);
-              appendLog('Playback paused');
+              appendLog(lang === 'ja' ? '再生停止' : 'Playback paused');
             }}
             onReset={handleReset}
             onStep={handleStep}
             onSpeedChange={(nextSpeed) => {
               setSpeed(nextSpeed);
-              appendLog(`Speed set to ${nextSpeed.toFixed(2)}x`);
+              appendLog(
+                lang === 'ja'
+                  ? `再生速度を ${nextSpeed.toFixed(2)}x に設定`
+                  : `Speed set to ${nextSpeed.toFixed(2)}x`,
+              );
             }}
           />
         </div>
+
         <section className="circuit-card">
-          <OutputInsightPanel inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
+          <OutputInsightPanel lang={lang} inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
           {mode === 'optimized' ? (
             <section className={isOptimizationExpanded ? 'optimization-progress' : 'optimization-progress compact'}>
               <div className="optimization-head">
                 <p>
-                  {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
+                  {displayedCircuit.label} ({displayedCircuit.nodes.length} {lang === 'ja' ? 'ノード' : 'nodes'})
                 </p>
                 <button
                   type="button"
                   className="optimization-toggle-btn"
                   onClick={() => setIsOptimizationExpanded((prev) => !prev)}
-                  aria-label={isOptimizationExpanded ? 'Hide optimization details' : 'Show optimization details'}
+                  aria-label={
+                    isOptimizationExpanded
+                      ? lang === 'ja'
+                        ? '最適化詳細を非表示'
+                        : 'Hide optimization details'
+                      : lang === 'ja'
+                        ? '最適化詳細を表示'
+                        : 'Show optimization details'
+                  }
                 >
                   {isOptimizationExpanded ? '△' : '▽'}
                 </button>
@@ -370,22 +455,19 @@ function App() {
                 <>
                   <ol className="optimization-steps">
                     {optimizationNarrative.map((step, index) => (
-                      <li
-                        key={step}
-                        className={index === optimizedStageIndex ? 'optimization-step-active' : 'optimization-step'}
-                      >
+                      <li key={step} className={index === optimizedStageIndex ? 'optimization-step-active' : 'optimization-step'}>
                         {step}
                       </li>
                     ))}
                   </ol>
                   <p className="optimization-diff-note">
-                    Added/merged (cyan): {optimizationFlash.mergedNodeIds.length} | Removed (red ghost):{' '}
-                    {optimizationFlash.removedNodes.length}
+                    {lang === 'ja' ? '追加/統合（シアン）' : 'Added/merged (cyan)'}: {optimizationFlash.mergedNodeIds.length} |{' '}
+                    {lang === 'ja' ? '削除（赤ゴースト）' : 'Removed (red ghost)'}: {optimizationFlash.removedNodes.length}
                   </p>
                   <p className="optimization-diff-detail">
-                    Merged labels: {mergedLabelSummary}
+                    {lang === 'ja' ? '統合ラベル' : 'Merged labels'}: {mergedLabelSummary}
                     <br />
-                    Removed labels: {removedLabelSummary}
+                    {lang === 'ja' ? '削除ラベル' : 'Removed labels'}: {removedLabelSummary}
                   </p>
                 </>
               ) : null}
@@ -393,29 +475,28 @@ function App() {
           ) : null}
           {circuitFigure}
         </section>
+
         <div className="right-stack">
           <section className="panel learning-status">
             <p className="circuit-meta">
-              Viewing: {activeCircuit.label} | Nodes: {activeCircuit.nodes.length} | Wires:{' '}
-              {activeCircuit.edges.length}
+              {lang === 'ja' ? '表示中' : 'Viewing'}: {activeCircuit.label} | {lang === 'ja' ? 'ノード' : 'Nodes'}:{' '}
+              {activeCircuit.nodes.length} | {lang === 'ja' ? '配線' : 'Wires'}: {activeCircuit.edges.length}
             </p>
             <p className={validation.isValid ? 'validation-ok' : 'validation-error'}>{truthTableStatus}</p>
-            <p className={allTruthTableChecksPass ? 'validation-ok' : 'validation-error'}>
-              {globalTruthTableStatus}
-            </p>
+            <p className={allTruthTableChecksPass ? 'validation-ok' : 'validation-error'}>{globalTruthTableStatus}</p>
             <p className={structuresDiffer ? 'validation-ok' : 'validation-error'}>{structureStatus}</p>
-            <p className={deterministicSteppingWorks ? 'validation-ok' : 'validation-error'}>
-              {steppingStatus}
-            </p>
+            <p className={deterministicSteppingWorks ? 'validation-ok' : 'validation-error'}>{steppingStatus}</p>
           </section>
           <GateDetailsPanel
+            lang={lang}
             selectedNode={selectedNode}
             outputValue={selectedNode ? simulationState.values[selectedNode.id] ?? 0 : 0}
           />
-          <EventLogPanel entries={eventLog} />
+          <EventLogPanel lang={lang} entries={eventLog} />
         </div>
       </div>
-      <CostInsightPanel insight={costInsight} bitWidth={bitWidth} onBitWidthChange={setBitWidth} />
+
+      <CostInsightPanel lang={lang} insight={costInsight} bitWidth={bitWidth} onBitWidthChange={setBitWidth} />
     </main>
   );
 }

@@ -5,9 +5,10 @@ interface CostInsightPanelProps {
   insight: CostInsightResult;
   bitWidth: number;
   onBitWidthChange: (next: number) => void;
+  lang: 'en' | 'ja';
 }
 
-export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostInsightPanelProps) {
+export function CostInsightPanel({ insight, bitWidth, onBitWidthChange, lang }: CostInsightPanelProps) {
   const [curveMode, setCurveMode] = useState(false);
   const carryChainLength = insight.cin === 1 ? bitWidth : Math.max(1, Math.round(bitWidth * 0.2));
   const derivedAddDelay = 2.2 + 1.2 * carryChainLength;
@@ -54,16 +55,22 @@ export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostIn
   }, [bitWidth, insight.cin]);
 
   return (
-    <section className="panel cost-insight" aria-label="Cost insight panel">
+    <section className="panel cost-insight" aria-label={lang === 'ja' ? 'コスト分析パネル' : 'Cost insight panel'}>
       <div className="cost-insight-header">
-        <h2>Cin Cost Insight</h2>
+        <h2>{lang === 'ja' ? 'Cin コスト分析' : 'Cin Cost Insight'}</h2>
         <button type="button" className="insight-toggle" onClick={() => setCurveMode((prev) => !prev)}>
-          {curveMode ? 'Show Metrics View' : 'Show Curve View'}
+          {curveMode
+            ? lang === 'ja'
+              ? 'メトリクス表示'
+              : 'Show Metrics View'
+            : lang === 'ja'
+              ? '曲線表示'
+              : 'Show Curve View'}
         </button>
       </div>
 
       <label className="bitwidth-control">
-        N (bit width): {bitWidth}
+        {lang === 'ja' ? 'N（ビット幅）' : 'N (bit width)'}: {bitWidth}
         <input
           type="range"
           min={1}
@@ -75,27 +82,30 @@ export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostIn
       </label>
 
       <p className="cost-summary">
-        With Cin={insight.cin}, multiplication delay is about <strong>{insight.costRatio.toFixed(1)}x</strong>{' '}
-        addition delay at this N.
+        {lang === 'ja'
+          ? `Cin=${insight.cin} のとき、この N では乗算遅延は加算遅延の約 `
+          : `With Cin=${insight.cin}, multiplication delay is about `}
+        <strong>{insight.costRatio.toFixed(1)}x</strong>
+        {lang === 'ja' ? ' です。' : ' addition delay at this N.'}
       </p>
 
       {!curveMode ? (
         <>
           <div className="cost-metrics">
             <div>
-              <dt>Add Delay</dt>
+              <dt>{lang === 'ja' ? '加算 遅延' : 'Add Delay'}</dt>
               <dd>{insight.addition.estimatedDelay.toFixed(1)}</dd>
             </div>
             <div>
-              <dt>Mul Delay</dt>
+              <dt>{lang === 'ja' ? '乗算 遅延' : 'Mul Delay'}</dt>
               <dd>{insight.multiplication.estimatedDelay.toFixed(1)}</dd>
             </div>
             <div>
-              <dt>Add Events</dt>
+              <dt>{lang === 'ja' ? '加算 イベント数' : 'Add Events'}</dt>
               <dd>{insight.addition.estimatedEvents}</dd>
             </div>
             <div>
-              <dt>Mul Events</dt>
+              <dt>{lang === 'ja' ? '乗算 イベント数' : 'Mul Events'}</dt>
               <dd>{insight.multiplication.estimatedEvents}</dd>
             </div>
           </div>
@@ -103,7 +113,9 @@ export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostIn
           <div className="formula-box">
             <p>carryChainLength = (Cin == 1) ? N : max(1, round(0.2N))</p>
             <p>
-              carryChainLength means how many bit-stages the carry (from Cin) propagates through in the adder.
+              {lang === 'ja'
+                ? 'carryChainLength は、Cin からのキャリーが加算器内で何段伝播するかを表します。'
+                : 'carryChainLength means how many bit-stages the carry (from Cin) propagates through in the adder.'}
             </p>
             <p>Add Delay = 2.2 + 1.2 * carryChainLength</p>
             <p>Add Events = 9N + 4 * carryChainLength</p>
@@ -112,16 +124,22 @@ export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostIn
           </div>
 
           <p className="relation-note">
-            Delay and Events are sibling metrics in this model. Both are estimated from N and
-            carryChainLength, so Events cannot be uniquely derived from Delay alone.
+            {lang === 'ja'
+              ? 'このモデルでは Delay と Events は兄弟指標です。どちらも N と carryChainLength から推定されるため、Delay だけから Events は一意に決まりません。'
+              : 'Delay and Events are sibling metrics in this model. Both are estimated from N and carryChainLength, so Events cannot be uniquely derived from Delay alone.'}
           </p>
           <p className="relation-example">
-            Current N={bitWidth}, carryChainLength={carryChainLength}: Add Delay={derivedAddDelay.toFixed(1)}, Add
-            Events={derivedAddEvents}, Mul Delay={derivedMulDelay.toFixed(1)}, Mul Events={derivedMulEvents}.
+            {lang === 'ja' ? '現在値' : 'Current'} N={bitWidth}, carryChainLength={carryChainLength}:{' '}
+            {lang === 'ja' ? '加算遅延' : 'Add Delay'}={derivedAddDelay.toFixed(1)},{' '}
+            {lang === 'ja' ? '加算イベント' : 'Add Events'}={derivedAddEvents},{' '}
+            {lang === 'ja' ? '乗算遅延' : 'Mul Delay'}={derivedMulDelay.toFixed(1)},{' '}
+            {lang === 'ja' ? '乗算イベント' : 'Mul Events'}={derivedMulEvents}.
           </p>
 
-          <p className="carry-caption">Carry arrival (bit0 -&gt; bitN-1):</p>
-          <div className="carry-lane" role="img" aria-label="carry propagation lane">
+          <p className="carry-caption">
+            {lang === 'ja' ? 'キャリー到達（bit0 -> bitN-1）:' : 'Carry arrival (bit0 -> bitN-1):'}
+          </p>
+          <div className="carry-lane" role="img" aria-label={lang === 'ja' ? 'キャリー伝播レーン' : 'carry propagation lane'}>
             {insight.carryPath.map((item) => (
               <span
                 key={item.bitIndex}
@@ -133,7 +151,7 @@ export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostIn
         </>
       ) : (
         <div className="curve-card">
-          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} role="img" aria-label="cost growth chart">
+          <svg viewBox={`0 0 ${chart.width} ${chart.height}`} role="img" aria-label={lang === 'ja' ? 'コスト成長チャート' : 'cost growth chart'}>
             <rect x="0" y="0" width={chart.width} height={chart.height} className="curve-bg" rx="14" />
             <line x1="60" y1="272" x2="856" y2="272" className="curve-axis" />
             <line x1="60" y1="272" x2="60" y2="28" className="curve-axis" />
@@ -152,19 +170,19 @@ export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostIn
               {chart.currentMul.toFixed(1)}
             </text>
             <text x="64" y="24" className="curve-title">
-              Cost Growth (N=1..32, Cin={insight.cin})
+              {lang === 'ja' ? `コスト成長（N=1..32, Cin=${insight.cin}）` : `Cost Growth (N=1..32, Cin=${insight.cin})`}
             </text>
             <text x="64" y="298" className="curve-label">
-              N (bit width)
+              {lang === 'ja' ? 'N（ビット幅）' : 'N (bit width)'}
             </text>
             <text x="14" y="36" className="curve-label">
-              Delay
+              {lang === 'ja' ? '遅延' : 'Delay'}
             </text>
             <text x="690" y="48" className="curve-add-legend">
-              Addition
+              {lang === 'ja' ? '加算' : 'Addition'}
             </text>
             <text x="690" y="70" className="curve-mul-legend">
-              Multiplication
+              {lang === 'ja' ? '乗算' : 'Multiplication'}
             </text>
           </svg>
         </div>
