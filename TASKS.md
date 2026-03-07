@@ -17,7 +17,7 @@
 - [x] Implement static SVG rendering for a 1-bit full adder
 - [x] Render input nodes A, B, Cin
 - [x] Render output nodes Sum, Cout
-- [ ] Render gates and wires with readable labels
+- [x] Render gates and wires with readable labels
 - [ ] Add a clean educational layout
 
 ## Phase 3: Circuit mode support

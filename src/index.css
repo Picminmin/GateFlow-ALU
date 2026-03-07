@@ -56,6 +56,12 @@ body {
   stroke-width: 2;
 }
 
+.circuit-edge-label {
+  fill: #374151;
+  font-size: 11px;
+  text-anchor: middle;
+}
+
 .circuit-node {
   stroke-width: 2;
 }

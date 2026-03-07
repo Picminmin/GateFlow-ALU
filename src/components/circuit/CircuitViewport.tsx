@@ -25,15 +25,24 @@ export function CircuitViewport({ circuit }: CircuitViewportProps) {
             return null;
           }
 
+          const x1 = fromNode.x + 40;
+          const y1 = fromNode.y;
+          const x2 = toNode.x - 40;
+          const y2 = toNode.y;
+
           return (
-            <line
-              key={edge.id}
-              x1={fromNode.x + 40}
-              y1={fromNode.y}
-              x2={toNode.x - 40}
-              y2={toNode.y}
-              className="circuit-edge"
-            />
+            <g key={edge.id}>
+              <line x1={x1} y1={y1} x2={x2} y2={y2} className="circuit-edge" />
+              {edge.label ? (
+                <text
+                  x={(x1 + x2) / 2}
+                  y={(y1 + y2) / 2 - 6}
+                  className="circuit-edge-label"
+                >
+                  {edge.label}
+                </text>
+              ) : null}
+            </g>
           );
         })}
 

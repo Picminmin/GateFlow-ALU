@@ -29,6 +29,7 @@ export interface CircuitEdge {
   id: string;
   from: string;
   to: string;
+  label?: string;
   points?: Point[];
 }
 
@@ -40,3 +41,4 @@ export interface CircuitGraph {
   inputNodeIds: string[];
   outputNodeIds: string[];
 }
+
