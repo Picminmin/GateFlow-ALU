@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CircuitViewport, InputsPanel } from './components';
+import { CircuitViewport, InputsPanel, PlaybackControls } from './components';
 import { getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
 import { validateFullAdderCircuit } from './simulation';
@@ -10,6 +10,7 @@ function App() {
   const [mode, setMode] = useState<FullAdderMode>('primitive');
   const [inputs, setInputs] = useState<InputsPanelValues>({ a: 0, b: 0, cin: 0 });
   const [animationTime, setAnimationTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const activeCircuit = getFullAdderCircuit(mode);
   const validation = validateFullAdderCircuit(activeCircuit);
   const demoSignalEdge = activeCircuit.edges[0]?.id;
@@ -29,6 +30,10 @@ function App() {
   }
 
   useEffect(() => {
+    if (!isPlaying) {
+      return undefined;
+    }
+
     let frameId = 0;
     let startTime = 0;
 
@@ -44,7 +49,16 @@ function App() {
 
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
-  }, []);
+  }, [isPlaying]);
+
+  const handleStep = () => {
+    setAnimationTime((prev) => (prev + 0.1) % 1);
+  };
+
+  const handleReset = () => {
+    setAnimationTime(0);
+    setIsPlaying(false);
+  };
 
   return (
     <main className="app-shell">
@@ -79,7 +93,16 @@ function App() {
         </fieldset>
       </header>
       <div className="main-layout">
-        <InputsPanel values={inputs} onChange={setInputs} />
+        <div className="left-stack">
+          <InputsPanel values={inputs} onChange={setInputs} />
+          <PlaybackControls
+            isPlaying={isPlaying}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onReset={handleReset}
+            onStep={handleStep}
+          />
+        </div>
         <section className="circuit-card">
         <p className={validation.isValid ? 'validation-ok' : 'validation-error'}>
           {validation.isValid

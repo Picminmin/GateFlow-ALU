@@ -32,6 +32,11 @@ body {
   align-items: start;
 }
 
+.left-stack {
+  display: grid;
+  gap: 1rem;
+}
+
 .app-header {
   margin-bottom: 1.25rem;
 }
@@ -112,6 +117,27 @@ body {
   border-radius: 8px;
   padding: 0.45rem 0.6rem;
   cursor: pointer;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.controls-grid button {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #1f2937;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  cursor: pointer;
+}
+
+.controls-grid button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .validation-ok,

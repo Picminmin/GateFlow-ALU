@@ -43,7 +43,7 @@
 
 ## Phase 6: Controls and UI
 - [x] Add inputs panel for A, B, Cin
-- [ ] Add playback controls: play, pause, reset, step
+- [x] Add playback controls: play, pause, reset, step
 - [ ] Add speed control
 - [ ] Add selected gate details panel
 - [ ] Add bottom event log panel
