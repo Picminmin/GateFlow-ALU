@@ -53,7 +53,7 @@
 - [x] Confirm Primitive and Optimized modes differ structurally
 - [x] Confirm stepping works reliably
 - [x] Refactor for readability
-- [ ] Improve labels and visual clarity
+- [x] Improve labels and visual clarity
 - [ ] Update README with run instructions
 
 ## Post-MVP tasks

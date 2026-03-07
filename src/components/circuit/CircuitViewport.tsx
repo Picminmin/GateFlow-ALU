@@ -76,13 +76,23 @@ export function CircuitViewport({
                 className={isActive ? 'circuit-edge circuit-edge-active' : 'circuit-edge'}
               />
               {edge.label ? (
-                <text
-                  x={(x1 + x2) / 2}
-                  y={(y1 + y2) / 2 - 6}
-                  className="circuit-edge-label"
-                >
-                  {edge.label}
-                </text>
+                <g>
+                  <rect
+                    x={(x1 + x2) / 2 - (edge.label.length * 6 + 8) / 2}
+                    y={(y1 + y2) / 2 - 16}
+                    width={edge.label.length * 6 + 8}
+                    height={14}
+                    rx={4}
+                    className="circuit-edge-label-bg"
+                  />
+                  <text
+                    x={(x1 + x2) / 2}
+                    y={(y1 + y2) / 2 - 6}
+                    className="circuit-edge-label"
+                  >
+                    {edge.label}
+                  </text>
+                </g>
               ) : null}
             </g>
           );

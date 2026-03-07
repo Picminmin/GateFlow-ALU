@@ -168,6 +168,10 @@ function App() {
           />
         </div>
         <section className="circuit-card">
+          <p className="circuit-meta">
+            Viewing: {activeCircuit.label} | Nodes: {activeCircuit.nodes.length} | Wires:{' '}
+            {activeCircuit.edges.length}
+          </p>
           <p className={validation.isValid ? 'validation-ok' : 'validation-error'}>{truthTableStatus}</p>
           <p className={allTruthTableChecksPass ? 'validation-ok' : 'validation-error'}>
             {globalTruthTableStatus}

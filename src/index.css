@@ -93,6 +93,13 @@ body {
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
+.circuit-meta {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
 .panel {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid #dbeafe;
@@ -216,6 +223,12 @@ body {
   text-anchor: middle;
 }
 
+.circuit-edge-label-bg {
+  fill: rgba(255, 255, 255, 0.9);
+  stroke: #cbd5e1;
+  stroke-width: 1;
+}
+
 .signal-dot {
   fill: #0ea5e9;
   stroke: #e0f2fe;
@@ -269,4 +282,10 @@ body {
   overflow: auto;
   display: grid;
   gap: 0.25rem;
+}
+
+@media (max-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
 }
