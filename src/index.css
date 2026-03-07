@@ -30,6 +30,7 @@ body {
   grid-template-columns: 220px 1fr 240px;
   gap: 1rem;
   align-items: start;
+  margin-bottom: 1rem;
 }
 
 .left-stack {
@@ -259,4 +260,13 @@ body {
 
 .circuit-node-selected {
   stroke: #7c3aed;
+}
+
+.event-log ul {
+  margin: 0;
+  padding-left: 1rem;
+  max-height: 160px;
+  overflow: auto;
+  display: grid;
+  gap: 0.25rem;
 }

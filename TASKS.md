@@ -46,7 +46,7 @@
 - [x] Add playback controls: play, pause, reset, step
 - [x] Add speed control
 - [x] Add selected gate details panel
-- [ ] Add bottom event log panel
+- [x] Add bottom event log panel
 
 ## Phase 7: Validation and cleanup
 - [ ] Confirm Sum and Cout are correct for all 8 input combinations

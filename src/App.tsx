@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CircuitViewport, GateDetailsPanel, InputsPanel, PlaybackControls } from './components';
+import { CircuitViewport, EventLogPanel, GateDetailsPanel, InputsPanel, PlaybackControls } from './components';
 import { getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
 import { validateFullAdderCircuit } from './simulation';
@@ -13,6 +13,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [eventLog, setEventLog] = useState<string[]>([]);
   const activeCircuit = getFullAdderCircuit(mode);
   const selectedNode = activeCircuit.nodes.find((node) => node.id === selectedNodeId) ?? null;
   const validation = validateFullAdderCircuit(activeCircuit);
@@ -32,8 +33,16 @@ function App() {
     }
   }
 
+  const appendLog = (message: string) => {
+    setEventLog((prev) => {
+      const next = [...prev, message];
+      return next.slice(-20);
+    });
+  };
+
   useEffect(() => {
     setSelectedNodeId(null);
+    appendLog(`Mode switched to ${mode}`);
   }, [mode]);
 
   useEffect(() => {
@@ -60,11 +69,13 @@ function App() {
 
   const handleStep = () => {
     setAnimationTime((prev) => (prev + 0.1 * speed) % 1);
+    appendLog('Step executed');
   };
 
   const handleReset = () => {
     setAnimationTime(0);
     setIsPlaying(false);
+    appendLog('Playback reset');
   };
 
   return (
@@ -101,15 +112,30 @@ function App() {
       </header>
       <div className="main-layout">
         <div className="left-stack">
-          <InputsPanel values={inputs} onChange={setInputs} />
+          <InputsPanel
+            values={inputs}
+            onChange={(nextValues) => {
+              setInputs(nextValues);
+              appendLog(`Inputs updated: A=${nextValues.a} B=${nextValues.b} Cin=${nextValues.cin}`);
+            }}
+          />
           <PlaybackControls
             isPlaying={isPlaying}
             speed={speed}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
+            onPlay={() => {
+              setIsPlaying(true);
+              appendLog('Playback started');
+            }}
+            onPause={() => {
+              setIsPlaying(false);
+              appendLog('Playback paused');
+            }}
             onReset={handleReset}
             onStep={handleStep}
-            onSpeedChange={setSpeed}
+            onSpeedChange={(nextSpeed) => {
+              setSpeed(nextSpeed);
+              appendLog(`Speed set to ${nextSpeed.toFixed(2)}x`);
+            }}
           />
         </div>
         <section className="circuit-card">
@@ -124,7 +150,10 @@ function App() {
           currentTime={animationTime}
           nodeValues={demoNodeValues}
           selectedNodeId={selectedNodeId}
-          onSelectNode={setSelectedNodeId}
+          onSelectNode={(nodeId) => {
+            setSelectedNodeId(nodeId);
+            appendLog(`Selected node: ${nodeId}`);
+          }}
         />
         </section>
         <GateDetailsPanel
@@ -132,6 +161,7 @@ function App() {
           outputValue={selectedNode ? demoNodeValues[selectedNode.id] ?? 0 : 0}
         />
       </div>
+      <EventLogPanel entries={eventLog} />
     </main>
   );
 }
