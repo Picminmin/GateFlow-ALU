@@ -17,7 +17,7 @@ body {
 #root {
   min-height: 100vh;
   padding: 2rem 1rem;
-  background: radial-gradient(circle at top, #eff6ff 0%, #f8fafc 45%, #eef2ff 100%);
+  background: #02040a;
 }
 
 .app-shell {
@@ -202,30 +202,32 @@ body {
 }
 
 .circuit-background {
-  fill: #ffffff;
-  stroke: #d1d5db;
+  fill: #000000;
+  stroke: #1f2937;
   stroke-width: 1.5;
 }
 
 .circuit-edge {
-  stroke: #4b5563;
+  stroke: #ffffff;
   stroke-width: 2;
+  fill: none;
 }
 
 .circuit-edge-active {
-  stroke: #0284c7;
+  stroke: #ffffff;
   stroke-width: 3;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.75));
 }
 
 .circuit-edge-label {
-  fill: #374151;
+  fill: #f8fafc;
   font-size: 11px;
   text-anchor: middle;
 }
 
 .circuit-edge-label-bg {
-  fill: rgba(255, 255, 255, 0.9);
-  stroke: #cbd5e1;
+  fill: rgba(15, 23, 42, 0.85);
+  stroke: #334155;
   stroke-width: 1;
 }
 

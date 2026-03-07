@@ -23,7 +23,7 @@ function App() {
   const [inputs, setInputs] = useState<InputsPanelValues>({ a: 0, b: 0, cin: 0 });
   const [animationTime, setAnimationTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState(0.5);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [eventLog, setEventLog] = useState<string[]>([]);
   const [simulationState, setSimulationState] = useState<SimulationState>(createInitialSimulationState());
@@ -87,7 +87,7 @@ function App() {
     if (!isPlaying) {
       return undefined;
     }
-    const stepIntervalMs = Math.max(80, 380 / speed);
+    const stepIntervalMs = Math.max(180, 900 / speed);
 
     const timerId = window.setInterval(() => {
       const nextState = engineRef.current.step();

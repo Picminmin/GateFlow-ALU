@@ -1,5 +1,5 @@
 import type { CircuitGraph, CircuitNode, LogicValue, WireSignal } from '../../types';
-import { getCircuitBounds } from '../../renderer';
+import { buildRoutedWire, getCircuitBounds, getPointAlongPolyline } from '../../renderer';
 
 interface CircuitViewportProps {
   circuit: CircuitGraph;
@@ -68,6 +68,20 @@ export function CircuitViewport({
   const visibleSignals = activeSignals.filter(
     (signal) => currentTime >= signal.startTime && currentTime <= signal.endTime,
   );
+  const routedWireByEdgeId = new Map(
+    circuit.edges
+      .map((edge) => {
+        const fromNode = nodeById.get(edge.from);
+        const toNode = nodeById.get(edge.to);
+        if (!fromNode || !toNode) {
+          return null;
+        }
+        const start = { x: fromNode.x + 40, y: fromNode.y };
+        const end = { x: toNode.x - 40, y: toNode.y };
+        return [edge.id, buildRoutedWire(start, end, edge.id)] as const;
+      })
+      .filter((item): item is readonly [string, ReturnType<typeof buildRoutedWire>] => item !== null),
+  );
 
   return (
     <section className="circuit-viewport" aria-label="Circuit viewport">
@@ -86,16 +100,11 @@ export function CircuitViewport({
         />
 
         {circuit.edges.map((edge) => {
-          const fromNode = nodeById.get(edge.from);
-          const toNode = nodeById.get(edge.to);
-          if (!fromNode || !toNode) {
+          const routedWire = routedWireByEdgeId.get(edge.id);
+          if (!routedWire) {
             return null;
           }
 
-          const x1 = fromNode.x + 40;
-          const y1 = fromNode.y;
-          const x2 = toNode.x - 40;
-          const y2 = toNode.y;
           const isActive = activeSignals.some(
             (signal) =>
               signal.edgeId === edge.id &&
@@ -105,28 +114,21 @@ export function CircuitViewport({
 
           return (
             <g key={edge.id}>
-              <line
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
+              <path
+                d={routedWire.pathD}
                 className={isActive ? 'circuit-edge circuit-edge-active' : 'circuit-edge'}
               />
               {edge.label ? (
                 <g>
                   <rect
-                    x={(x1 + x2) / 2 - (edge.label.length * 6 + 8) / 2}
-                    y={(y1 + y2) / 2 - 16}
+                    x={routedWire.labelPoint.x - (edge.label.length * 6 + 8) / 2}
+                    y={routedWire.labelPoint.y - 16}
                     width={edge.label.length * 6 + 8}
                     height={14}
                     rx={4}
                     className="circuit-edge-label-bg"
                   />
-                  <text
-                    x={(x1 + x2) / 2}
-                    y={(y1 + y2) / 2 - 6}
-                    className="circuit-edge-label"
-                  >
+                  <text x={routedWire.labelPoint.x} y={routedWire.labelPoint.y - 6} className="circuit-edge-label">
                     {edge.label}
                   </text>
                 </g>
@@ -136,30 +138,20 @@ export function CircuitViewport({
         })}
 
         {visibleSignals.map((signal) => {
-          const edge = circuit.edges.find((item) => item.id === signal.edgeId);
-          if (!edge) {
+          const routedWire = routedWireByEdgeId.get(signal.edgeId);
+          if (!routedWire) {
             return null;
           }
-
-          const fromNode = nodeById.get(edge.from);
-          const toNode = nodeById.get(edge.to);
-          if (!fromNode || !toNode) {
-            return null;
-          }
-
-          const x1 = fromNode.x + 40;
-          const y1 = fromNode.y;
-          const x2 = toNode.x - 40;
-          const y2 = toNode.y;
           const duration = Math.max(1, signal.endTime - signal.startTime);
           const rawProgress = (currentTime - signal.startTime) / duration;
           const progress = Math.min(1, Math.max(0, rawProgress));
+          const dot = getPointAlongPolyline(routedWire.points, progress);
 
           return (
             <circle
               key={`${signal.edgeId}-${signal.startTime}`}
-              cx={x1 + (x2 - x1) * progress}
-              cy={y1 + (y2 - y1) * progress}
+              cx={dot.x}
+              cy={dot.y}
               r={5}
               className="signal-dot"
             />
