@@ -4,7 +4,7 @@
 - [x] Initialize Vite + React + TypeScript project
 - [x] Create initial folder structure
 - [x] Add README-based project overview
-- [ ] Confirm app runs locally with `npm run dev`
+- [x] Confirm app runs locally with `npm run dev`
 
 ## Phase 1: Core types and architecture
 - [ ] Define shared TypeScript types for nodes, edges, circuits, events, and simulation state
