@@ -90,6 +90,33 @@ export function CircuitViewport({
         role="img"
         aria-label={circuit.label}
       >
+        <defs>
+          <radialGradient id="signal-dot-gradient" cx="50%" cy="50%" r="60%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="40%" stopColor="#ffffff" />
+            <stop offset="72%" stopColor="#a5f3fc" />
+            <stop offset="86%" stopColor="#c4b5fd" />
+            <stop offset="100%" stopColor="#f9a8d4" />
+          </radialGradient>
+          <filter id="signal-dot-glow" x="-120%" y="-120%" width="340%" height="340%">
+            <feGaussianBlur stdDeviation="2.1" result="blur" />
+            <feColorMatrix
+              in="blur"
+              type="matrix"
+              values="
+                1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 1.7 0
+              "
+              result="boosted"
+            />
+            <feMerge>
+              <feMergeNode in="boosted" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         <rect
           x={viewBoxX}
           y={viewBoxY}

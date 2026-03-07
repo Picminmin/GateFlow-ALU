@@ -2,7 +2,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #1f2937;
+  color: #e5e7eb;
   background-color: #f8fafc;
 }
 
@@ -21,13 +21,13 @@ body {
 }
 
 .app-shell {
-  width: min(1040px, 100%);
+  width: min(1680px, 98vw);
   margin: 0 auto;
 }
 
 .main-layout {
   display: grid;
-  grid-template-columns: 220px 1fr 240px;
+  grid-template-columns: minmax(220px, 260px) minmax(860px, 1fr) minmax(220px, 280px);
   gap: 1rem;
   align-items: start;
   margin-bottom: 1rem;
@@ -54,21 +54,23 @@ body {
 .app-shell h1 {
   margin: 0.25rem 0 0.5rem;
   font-size: 1.75rem;
+  color: #f8fafc;
 }
 
 .app-description {
   margin: 0;
-  color: #374151;
+  color: #cbd5e1;
   max-width: 60ch;
 }
 
 .mode-switcher {
   margin: 1rem 0 0;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #c7d2fe;
+  border: 1px solid #93c5fd;
   border-radius: 10px;
   display: inline-flex;
   gap: 1rem;
+  background: rgba(2, 6, 23, 0.35);
 }
 
 .mode-switcher legend {
@@ -82,7 +84,7 @@ body {
   align-items: center;
   gap: 0.35rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #e2e8f0;
 }
 
 .circuit-card {
@@ -232,9 +234,10 @@ body {
 }
 
 .signal-dot {
-  fill: #0ea5e9;
-  stroke: #e0f2fe;
-  stroke-width: 2;
+  fill: url(#signal-dot-gradient);
+  stroke: #ffffff;
+  stroke-width: 1.2;
+  filter: url(#signal-dot-glow);
 }
 
 .circuit-node {
