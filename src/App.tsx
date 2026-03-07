@@ -1,8 +1,12 @@
+import { CircuitViewport } from './components';
+import { fullAdderStaticCircuit } from './circuits/fullAdder';
+
 function App() {
   return (
     <main className="app-shell">
       <h1>GateFlow ALU</h1>
-      <p>Phase 1 bootstrap is complete.</p>
+      <p>Static 1-bit full adder view</p>
+      <CircuitViewport circuit={fullAdderStaticCircuit} />
     </main>
   );
 }

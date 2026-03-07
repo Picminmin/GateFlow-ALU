@@ -1,5 +1,5 @@
 :root {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color: #1f2937;
@@ -18,9 +18,66 @@ body {
   min-height: 100vh;
   display: grid;
   place-items: center;
+  padding: 1.5rem;
 }
 
 .app-shell {
-  text-align: center;
-  padding: 2rem;
+  width: min(980px, 100%);
+}
+
+.app-shell h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.app-shell p {
+  margin: 0.25rem 0 1rem;
+  color: #4b5563;
+}
+
+.circuit-viewport {
+  width: 100%;
+}
+
+.circuit-viewport svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.circuit-background {
+  fill: #ffffff;
+  stroke: #d1d5db;
+  stroke-width: 1.5;
+}
+
+.circuit-edge {
+  stroke: #4b5563;
+  stroke-width: 2;
+}
+
+.circuit-node {
+  stroke-width: 2;
+}
+
+.circuit-node-input {
+  fill: #eef2ff;
+  stroke: #4338ca;
+}
+
+.circuit-node-gate {
+  fill: #ecfeff;
+  stroke: #0f766e;
+}
+
+.circuit-node-output {
+  fill: #fffbeb;
+  stroke: #b45309;
+}
+
+.circuit-node-label {
+  fill: #111827;
+  font-size: 13px;
+  font-weight: 600;
+  text-anchor: middle;
 }

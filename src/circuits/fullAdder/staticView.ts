@@ -1,0 +1,38 @@
+import type { CircuitGraph } from '../../types';
+
+export const fullAdderStaticCircuit: CircuitGraph = {
+  id: 'full-adder-static',
+  label: '1-bit Full Adder',
+  inputNodeIds: ['in-a', 'in-b', 'in-cin'],
+  outputNodeIds: ['out-sum', 'out-cout'],
+  nodes: [
+    { id: 'in-a', type: 'INPUT', label: 'A', x: 80, y: 80, delay: 0 },
+    { id: 'in-b', type: 'INPUT', label: 'B', x: 80, y: 160, delay: 0 },
+    { id: 'in-cin', type: 'INPUT', label: 'Cin', x: 80, y: 260, delay: 0 },
+    { id: 'xor-1', type: 'XOR', label: 'XOR', x: 250, y: 120, delay: 1 },
+    { id: 'xor-2', type: 'XOR', label: 'XOR', x: 420, y: 170, delay: 1 },
+    { id: 'and-1', type: 'AND', label: 'AND', x: 250, y: 230, delay: 1 },
+    { id: 'and-2', type: 'AND', label: 'AND', x: 420, y: 270, delay: 1 },
+    { id: 'and-3', type: 'AND', label: 'AND', x: 420, y: 330, delay: 1 },
+    { id: 'or-1', type: 'OR', label: 'OR', x: 590, y: 290, delay: 1 },
+    { id: 'out-sum', type: 'OUTPUT', label: 'Sum', x: 700, y: 170, delay: 0 },
+    { id: 'out-cout', type: 'OUTPUT', label: 'Cout', x: 700, y: 290, delay: 0 },
+  ],
+  edges: [
+    { id: 'a-xor1', from: 'in-a', to: 'xor-1' },
+    { id: 'b-xor1', from: 'in-b', to: 'xor-1' },
+    { id: 'xor1-xor2', from: 'xor-1', to: 'xor-2' },
+    { id: 'cin-xor2', from: 'in-cin', to: 'xor-2' },
+    { id: 'xor2-sum', from: 'xor-2', to: 'out-sum' },
+    { id: 'a-and1', from: 'in-a', to: 'and-1' },
+    { id: 'b-and1', from: 'in-b', to: 'and-1' },
+    { id: 'xor1-and2', from: 'xor-1', to: 'and-2' },
+    { id: 'cin-and2', from: 'in-cin', to: 'and-2' },
+    { id: 'a-and3', from: 'in-a', to: 'and-3' },
+    { id: 'cin-and3', from: 'in-cin', to: 'and-3' },
+    { id: 'and1-or1', from: 'and-1', to: 'or-1' },
+    { id: 'and2-or1', from: 'and-2', to: 'or-1' },
+    { id: 'and3-or1', from: 'and-3', to: 'or-1' },
+    { id: 'or1-cout', from: 'or-1', to: 'out-cout' },
+  ],
+};
