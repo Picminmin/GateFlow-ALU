@@ -49,6 +49,29 @@ body {
   max-width: 60ch;
 }
 
+.mode-switcher {
+  margin: 1rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  display: inline-flex;
+  gap: 1rem;
+}
+
+.mode-switcher legend {
+  padding: 0 0.25rem;
+  color: #4338ca;
+  font-size: 0.8rem;
+}
+
+.mode-switcher label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
 .circuit-card {
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid #dbeafe;

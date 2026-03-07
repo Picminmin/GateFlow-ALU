@@ -23,7 +23,7 @@
 ## Phase 3: Circuit mode support
 - [x] Define Primitive mode circuit graph
 - [x] Define Optimized mode circuit graph
-- [ ] Implement mode switch UI
+- [x] Implement mode switch UI
 - [ ] Make mode switching replace the actual rendered graph
 
 ## Phase 4: Simulation engine

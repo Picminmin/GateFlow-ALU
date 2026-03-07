@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import { CircuitViewport } from './components';
 import { fullAdderStaticCircuit } from './circuits/fullAdder';
+import type { FullAdderMode } from './circuits/fullAdder';
 
 function App() {
+  const [mode, setMode] = useState<FullAdderMode>('primitive');
+
   return (
     <main className="app-shell">
       <header className="app-header">
@@ -10,6 +14,29 @@ function App() {
         <p className="app-description">
           This static view shows the full-adder gate graph before simulation and animation are enabled.
         </p>
+        <fieldset className="mode-switcher">
+          <legend>Mode</legend>
+          <label>
+            <input
+              type="radio"
+              name="mode"
+              value="primitive"
+              checked={mode === 'primitive'}
+              onChange={() => setMode('primitive')}
+            />
+            Primitive
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="mode"
+              value="optimized"
+              checked={mode === 'optimized'}
+              onChange={() => setMode('optimized')}
+            />
+            Optimized
+          </label>
+        </fieldset>
       </header>
       <section className="circuit-card">
         <CircuitViewport circuit={fullAdderStaticCircuit} />
