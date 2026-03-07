@@ -7,6 +7,7 @@ interface CircuitViewportProps {
   activeSignals?: WireSignal[];
   currentTime?: number;
   nodeValues?: Record<string, LogicValue>;
+  inputValues?: Record<string, LogicValue>;
   selectedNodeId?: string | null;
   onSelectNode?: (nodeId: string) => void;
 }
@@ -89,6 +90,7 @@ export function CircuitViewport({
   activeSignals = [],
   currentTime = 0,
   nodeValues = {},
+  inputValues = {},
   selectedNodeId = null,
   onSelectNode,
 }: CircuitViewportProps) {
@@ -238,9 +240,14 @@ export function CircuitViewport({
             <text x={node.x} y={node.y + 33} className="circuit-node-label">
               {node.label}
             </text>
+            {node.type === 'INPUT' ? (
+              <text x={node.x} y={node.y + 6} className="circuit-input-value">
+                {inputValues[node.id] ?? 0}
+              </text>
+            ) : null}
             {node.type === 'OUTPUT' ? (
               <text x={node.x} y={node.y + 6} className="circuit-output-value">
-                {nodeValues[node.id] ?? 0}
+                {nodeValues[node.id] ?? '-'}
               </text>
             ) : null}
           </g>

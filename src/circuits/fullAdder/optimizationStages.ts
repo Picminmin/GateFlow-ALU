@@ -15,7 +15,7 @@ function pickCircuit(base: CircuitGraph, nodeIds: string[], id: string, label: s
 
 export function getOptimizedTransitionCircuits(): CircuitGraph[] {
   const primitive = fullAdderCircuits.primitive;
-  const stageReduced = pickCircuit(
+  const stage2 = pickCircuit(
     primitive,
     [
       'in-a',
@@ -24,6 +24,7 @@ export function getOptimizedTransitionCircuits(): CircuitGraph[] {
       'not-a',
       'not-b',
       'not-cin',
+      'sum-and-1',
       'sum-and-2',
       'sum-and-3',
       'sum-and-4',
@@ -37,8 +38,34 @@ export function getOptimizedTransitionCircuits(): CircuitGraph[] {
       'out-sum',
       'out-cout',
     ],
-    'full-adder-optimized-stage-reduced',
-    'Optimization Stage 2: Reduced candidates',
+    'full-adder-optimized-stage-2',
+    'Optimization Stage 2: remove duplicated Sum branch',
+  );
+
+  const stage3 = pickCircuit(
+    primitive,
+    [
+      'in-a',
+      'in-b',
+      'in-cin',
+      'not-a',
+      'not-b',
+      'not-cin',
+      'sum-and-1',
+      'sum-and-2',
+      'sum-and-3',
+      'sum-and-4',
+      'sum-or-2',
+      'sum-or-3',
+      'cout-and-1',
+      'cout-and-2',
+      'cout-or-1',
+      'cout-or-2',
+      'out-sum',
+      'out-cout',
+    ],
+    'full-adder-optimized-stage-3',
+    'Optimization Stage 3: merge carry contributors',
   );
 
   const optimized = fullAdderCircuits.optimized;
@@ -49,11 +76,12 @@ export function getOptimizedTransitionCircuits(): CircuitGraph[] {
       id: 'full-adder-optimized-stage-primitive',
       label: 'Optimization Stage 1: Primitive baseline',
     },
-    stageReduced,
+    stage2,
+    stage3,
     {
       ...optimized,
       id: 'full-adder-optimized-stage-final',
-      label: 'Optimization Stage 3: Final optimized',
+      label: 'Optimization Stage 4: Final optimized (XOR-based)',
     },
   ];
 }

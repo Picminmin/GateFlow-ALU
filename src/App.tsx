@@ -78,6 +78,12 @@ function App() {
   const actualSum = (simulationState.values['out-sum'] ?? null) as LogicValue | null;
   const actualCout = (simulationState.values['out-cout'] ?? null) as LogicValue | null;
   const modeIsOptimized = mode === 'optimized';
+  const optimizationNarrative = [
+    'Stage 1: Start from canonical SOP-style full-adder expansion.',
+    'Stage 2: Remove duplicated Sum branch terms.',
+    'Stage 3: Merge carry contributors before final OR.',
+    'Stage 4: Rewrite as XOR-based minimal graph for Sum/Cout.',
+  ];
 
   const appendLog = (message: string) => {
     setEventLog((prev) => {
@@ -120,7 +126,7 @@ function App() {
 
     const timer = window.setTimeout(() => {
       setOptimizedStageIndex((prev) => Math.min(prev + 1, optimizedStages.length - 1));
-    }, 1000);
+    }, 1400);
 
     return () => window.clearTimeout(timer);
   }, [mode, optimizedStageIndex, optimizedStages.length]);
@@ -186,6 +192,10 @@ function App() {
         <h1>1-bit Full Adder Circuit</h1>
         <p className="app-description">
           This static view shows the full-adder gate graph before simulation and animation are enabled.
+        </p>
+        <p className="calc-context">
+          Base-2 calculation context: this animation is a single-bit column (1-digit) full adder.
+          It computes <code>A + B + Cin -&gt; Sum (this digit)</code> and <code>Cout (next digit carry)</code>.
         </p>
         <fieldset className="mode-switcher">
           <legend>Mode</legend>
@@ -272,15 +282,32 @@ function App() {
           </p>
           <OutputInsightPanel inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
           {mode === 'optimized' ? (
-            <p className="optimization-progress">
-              {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
-            </p>
+            <section className="optimization-progress">
+              <p>
+                {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
+              </p>
+              <ol className="optimization-steps">
+                {optimizationNarrative.map((step, index) => (
+                  <li
+                    key={step}
+                    className={index === optimizedStageIndex ? 'optimization-step-active' : 'optimization-step'}
+                  >
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </section>
           ) : null}
           <CircuitViewport
             circuit={displayedCircuit}
             activeSignals={showOptimizedTransition ? [] : simulationState.activeSignals}
             currentTime={animationTime}
             nodeValues={showOptimizedTransition ? {} : simulationState.values}
+            inputValues={{
+              'in-a': inputs.a,
+              'in-b': inputs.b,
+              'in-cin': inputs.cin,
+            }}
             selectedNodeId={selectedNodeId}
             onSelectNode={(nodeId) => {
               setSelectedNodeId(nodeId);
