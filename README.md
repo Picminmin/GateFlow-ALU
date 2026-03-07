@@ -8,10 +8,16 @@ GateFlow ALU is an educational web app that visualizes a **1-bit full adder** at
 ![GateFlow Main UI](./docs/images/gateflow-main-ui.png)
 
 ### Additional Views
-![GateFlow Overview](./docs/images/gateflow-overview.png)
-![GateFlow Circuit Focus](./docs/images/gateflow-circuit-focus.png)
-![GateFlow Optimized Stages](./docs/images/gateflow-optimized-stages.png)
-![GateFlow Japanese UI](./docs/images/gateflow-ja-ui.png)
+
+<p align="center">
+  <img src="./docs/images/gateflow-overview.png" alt="GateFlow Overview" width="49%" />
+  <img src="./docs/images/gateflow-ja-ui.png" alt="GateFlow Japanese UI" width="49%" />
+</p>
+
+<p align="center">
+  <img src="./docs/images/gateflow-circuit-focus.png" alt="GateFlow Circuit Focus" width="49%" />
+  <img src="./docs/images/gateflow-optimized-stages.png" alt="GateFlow Optimized Stages" width="49%" />
+</p>
 
 ### Demo GIF (optional)
 > Add your GIF at `./docs/images/gateflow-demo.gif` if needed.
