@@ -137,3 +137,10 @@ src/
   components/  # React UI + panels + circuit viewport
   types/       # shared TypeScript types
 ```
+
+---
+
+## License / ライセンス
+
+This project is licensed under the **MIT License**. See [LICENSE](./LICENSE).  
+このプロジェクトは **MIT License** の下で公開されています。詳細は [LICENSE](./LICENSE) を参照してください。
