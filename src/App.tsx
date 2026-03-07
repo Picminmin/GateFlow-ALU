@@ -8,12 +8,12 @@ import {
 import {
   CircuitViewport,
   CostInsightPanel,
-  EventLogPanel,
   GateDetailsPanel,
   InputsPanel,
   PlaybackControls,
+  EventLogPanel,
 } from './components';
-import { fullAdderCircuits, getFullAdderCircuit } from './circuits/fullAdder';
+import { fullAdderCircuits, getFullAdderCircuit, getOptimizedTransitionCircuits } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
 import {
   createInitialSimulationState,
@@ -34,11 +34,15 @@ function App() {
   const [speed, setSpeed] = useState(0.5);
   const [bitWidth, setBitWidth] = useState(8);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [optimizedStageIndex, setOptimizedStageIndex] = useState(2);
   const [eventLog, setEventLog] = useState<string[]>([]);
   const [simulationState, setSimulationState] = useState<SimulationState>(createInitialSimulationState());
   const engineRef = useRef<SimulationEngine>(createSimulationEngine());
   const simTimeRef = useRef(0);
   const activeCircuit = getFullAdderCircuit(mode);
+  const optimizedStages = getOptimizedTransitionCircuits();
+  const showOptimizedTransition = mode === 'optimized' && optimizedStageIndex < optimizedStages.length - 1;
+  const displayedCircuit = mode === 'optimized' ? optimizedStages[optimizedStageIndex] : activeCircuit;
   const selectedNode = activeCircuit.nodes.find((node) => node.id === selectedNodeId) ?? null;
   const validation = validateFullAdderCircuit(activeCircuit);
   const primitiveValidation = validateFullAdderCircuit(fullAdderCircuits.primitive);
@@ -95,7 +99,27 @@ function App() {
   useEffect(() => {
     setSelectedNodeId(null);
     appendLog(`Mode switched to ${mode}`);
+    if (mode === 'optimized') {
+      setOptimizedStageIndex(0);
+    } else {
+      setOptimizedStageIndex(optimizedStages.length - 1);
+    }
   }, [mode]);
+
+  useEffect(() => {
+    if (mode !== 'optimized') {
+      return undefined;
+    }
+    if (optimizedStageIndex >= optimizedStages.length - 1) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      setOptimizedStageIndex((prev) => Math.min(prev + 1, optimizedStages.length - 1));
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [mode, optimizedStageIndex, optimizedStages.length]);
 
   useEffect(() => {
     initializeSimulation();
@@ -242,11 +266,16 @@ function App() {
           <p className={deterministicSteppingWorks ? 'validation-ok' : 'validation-error'}>
             {steppingStatus}
           </p>
+          {mode === 'optimized' ? (
+            <p className="optimization-progress">
+              {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
+            </p>
+          ) : null}
           <CircuitViewport
-            circuit={activeCircuit}
-            activeSignals={simulationState.activeSignals}
+            circuit={displayedCircuit}
+            activeSignals={showOptimizedTransition ? [] : simulationState.activeSignals}
             currentTime={animationTime}
-            nodeValues={simulationState.values}
+            nodeValues={showOptimizedTransition ? {} : simulationState.values}
             selectedNodeId={selectedNodeId}
             onSelectNode={(nodeId) => {
               setSelectedNodeId(nodeId);
@@ -254,13 +283,15 @@ function App() {
             }}
           />
         </section>
-        <GateDetailsPanel
-          selectedNode={selectedNode}
-          outputValue={selectedNode ? simulationState.values[selectedNode.id] ?? 0 : 0}
-        />
+        <div className="right-stack">
+          <GateDetailsPanel
+            selectedNode={selectedNode}
+            outputValue={selectedNode ? simulationState.values[selectedNode.id] ?? 0 : 0}
+          />
+          <EventLogPanel entries={eventLog} />
+        </div>
       </div>
       <CostInsightPanel insight={costInsight} bitWidth={bitWidth} onBitWidthChange={setBitWidth} />
-      <EventLogPanel entries={eventLog} />
     </main>
   );
 }
