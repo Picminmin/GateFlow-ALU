@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   globalTruthTableStatusMessage,
   steppingStatusMessage,
@@ -8,8 +8,14 @@ import {
 import { CircuitViewport, EventLogPanel, GateDetailsPanel, InputsPanel, PlaybackControls } from './components';
 import { fullAdderCircuits, getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
-import { validateFullAdderCircuit, verifyDeterministicStepping } from './simulation';
-import type { WireSignal } from './types';
+import {
+  createInitialSimulationState,
+  createSimulationEngine,
+  type SimulationEngine,
+  validateFullAdderCircuit,
+  verifyDeterministicStepping,
+} from './simulation';
+import type { SimulationState } from './types';
 import type { InputsPanelValues } from './components/panels/InputsPanel';
 
 function App() {
@@ -20,6 +26,8 @@ function App() {
   const [speed, setSpeed] = useState(1);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [eventLog, setEventLog] = useState<string[]>([]);
+  const [simulationState, setSimulationState] = useState<SimulationState>(createInitialSimulationState());
+  const engineRef = useRef<SimulationEngine>(createSimulationEngine());
   const activeCircuit = getFullAdderCircuit(mode);
   const selectedNode = activeCircuit.nodes.find((node) => node.id === selectedNodeId) ?? null;
   const validation = validateFullAdderCircuit(activeCircuit);
@@ -38,21 +46,6 @@ function App() {
     },
     steps: 5,
   });
-  const demoSignalEdge = activeCircuit.edges[0]?.id;
-  const demoSignals: WireSignal[] = demoSignalEdge
-    ? [{ edgeId: demoSignalEdge, value: 1, startTime: 0, endTime: 1 }]
-    : [];
-  const demoNodeValues = activeCircuit.nodes.reduce<Record<string, 0 | 1>>((acc, node) => {
-    acc[node.id] = 0;
-    return acc;
-  }, {});
-  if (demoSignalEdge) {
-    const activeEdge = activeCircuit.edges.find((edge) => edge.id === demoSignalEdge);
-    if (activeEdge) {
-      demoNodeValues[activeEdge.from] = inputs.a;
-      demoNodeValues[activeEdge.to] = 1;
-    }
-  }
   const truthTableStatus = truthTableStatusMessage(validation.isValid, validation.mismatches.length);
   const globalTruthTableStatus = globalTruthTableStatusMessage(allTruthTableChecksPass);
   const structureStatus = structureStatusMessage(
@@ -69,39 +62,55 @@ function App() {
     });
   };
 
+  const initializeSimulation = useCallback(() => {
+    const engine = engineRef.current;
+    engine.setCircuit(activeCircuit);
+    engine.setInputs({
+      'in-a': inputs.a,
+      'in-b': inputs.b,
+      'in-cin': inputs.cin,
+    });
+    const snapshot = engine.snapshot();
+    setSimulationState(snapshot);
+  }, [activeCircuit, inputs.a, inputs.b, inputs.cin]);
+
   useEffect(() => {
     setSelectedNodeId(null);
     appendLog(`Mode switched to ${mode}`);
   }, [mode]);
 
   useEffect(() => {
+    initializeSimulation();
+  }, [initializeSimulation]);
+
+  useEffect(() => {
     if (!isPlaying) {
       return undefined;
     }
+    const stepIntervalMs = Math.max(80, 380 / speed);
 
-    let frameId = 0;
-    let startTime = 0;
+    const timerId = window.setInterval(() => {
+      const nextState = engineRef.current.step();
+      setSimulationState(nextState);
+      setAnimationTime(nextState.elapsedTime);
 
-    const tick = (timestamp: number) => {
-      if (startTime === 0) {
-        startTime = timestamp;
+      if (nextState.eventQueue.length === 0) {
+        setIsPlaying(false);
       }
+    }, stepIntervalMs);
 
-      const elapsedSeconds = ((timestamp - startTime) / 1000) * speed;
-      setAnimationTime(elapsedSeconds % 1);
-      frameId = requestAnimationFrame(tick);
-    };
-
-    frameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frameId);
+    return () => window.clearInterval(timerId);
   }, [isPlaying, speed]);
 
   const handleStep = () => {
-    setAnimationTime((prev) => (prev + 0.1 * speed) % 1);
+    const nextState = engineRef.current.step();
+    setSimulationState(nextState);
+    setAnimationTime(nextState.elapsedTime);
     appendLog('Step executed');
   };
 
   const handleReset = () => {
+    initializeSimulation();
     setAnimationTime(0);
     setIsPlaying(false);
     appendLog('Playback reset');
@@ -182,9 +191,9 @@ function App() {
           </p>
           <CircuitViewport
             circuit={activeCircuit}
-            activeSignals={demoSignals}
+            activeSignals={simulationState.activeSignals}
             currentTime={animationTime}
-            nodeValues={demoNodeValues}
+            nodeValues={simulationState.values}
             selectedNodeId={selectedNodeId}
             onSelectNode={(nodeId) => {
               setSelectedNodeId(nodeId);
@@ -194,7 +203,7 @@ function App() {
         </section>
         <GateDetailsPanel
           selectedNode={selectedNode}
-          outputValue={selectedNode ? demoNodeValues[selectedNode.id] ?? 0 : 0}
+          outputValue={selectedNode ? simulationState.values[selectedNode.id] ?? 0 : 0}
         />
       </div>
       <EventLogPanel entries={eventLog} />

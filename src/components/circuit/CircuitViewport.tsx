@@ -65,6 +65,9 @@ export function CircuitViewport({
   const viewBoxY = bounds.minY - padding;
   const viewBoxWidth = bounds.maxX - bounds.minX + padding * 2;
   const viewBoxHeight = bounds.maxY - bounds.minY + padding * 2;
+  const visibleSignals = activeSignals.filter(
+    (signal) => currentTime >= signal.startTime && currentTime <= signal.endTime,
+  );
 
   return (
     <section className="circuit-viewport" aria-label="Circuit viewport">
@@ -132,7 +135,7 @@ export function CircuitViewport({
           );
         })}
 
-        {activeSignals.map((signal) => {
+        {visibleSignals.map((signal) => {
           const edge = circuit.edges.find((item) => item.id === signal.edgeId);
           if (!edge) {
             return null;
