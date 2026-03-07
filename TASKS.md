@@ -9,7 +9,7 @@
 ## Phase 1: Core types and architecture
 - [x] Define shared TypeScript types for nodes, edges, circuits, events, and simulation state
 - [x] Create circuit definition module structure
-- [ ] Create simulation engine module structure
+- [x] Create simulation engine module structure
 - [ ] Create renderer module structure
 - [ ] Create UI component structure
 
