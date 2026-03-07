@@ -27,7 +27,7 @@
 - [x] Make mode switching replace the actual rendered graph
 
 ## Phase 4: Simulation engine
-- [ ] Implement input assignment logic
+- [x] Implement input assignment logic
 - [ ] Implement gate evaluation logic
 - [ ] Implement discrete-event scheduling
 - [ ] Implement propagation delays
