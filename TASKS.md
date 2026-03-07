@@ -39,7 +39,7 @@
 - [x] Highlight active wires
 - [x] Highlight gate outputs when active
 - [x] Add time-based animation loop
-- [ ] Support deterministic step-by-step playback
+- [x] Support deterministic step-by-step playback
 
 ## Phase 6: Controls and UI
 - [ ] Add inputs panel for A, B, Cin
