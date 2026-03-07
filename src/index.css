@@ -239,6 +239,11 @@ body {
   stroke-width: 2;
 }
 
+.circuit-node-shape {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .circuit-node-input {
   fill: #eef2ff;
   stroke: #4338ca;
@@ -262,7 +267,7 @@ body {
 
 .circuit-node-label {
   fill: #111827;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   text-anchor: middle;
 }

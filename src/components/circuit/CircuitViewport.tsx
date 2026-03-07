@@ -10,10 +10,44 @@ interface CircuitViewportProps {
   onSelectNode?: (nodeId: string) => void;
 }
 
-function nodeClassName(node: CircuitNode, isActive: boolean): string {
-  if (node.type === 'INPUT') return 'circuit-node circuit-node-input';
-  if (node.type === 'OUTPUT') return 'circuit-node circuit-node-output';
-  return isActive ? 'circuit-node circuit-node-gate circuit-node-active' : 'circuit-node circuit-node-gate';
+function nodeClassName(node: CircuitNode, isActive: boolean, isSelected: boolean): string {
+  const classes = ['circuit-node', 'circuit-node-shape'];
+  if (node.type === 'INPUT') classes.push('circuit-node-input');
+  else if (node.type === 'OUTPUT') classes.push('circuit-node-output');
+  else classes.push('circuit-node-gate');
+  if (isActive) classes.push('circuit-node-active');
+  if (isSelected) classes.push('circuit-node-selected');
+  return classes.join(' ');
+}
+
+function renderMilShape(node: CircuitNode, shapeClass: string): JSX.Element {
+  if (node.type === 'AND') {
+    return <path d="M12 4 H36 A18 18 0 0 1 36 40 H12 Z" className={shapeClass} />;
+  }
+
+  if (node.type === 'OR') {
+    return <path d="M12 4 Q26 22 12 40 H34 Q66 22 34 4 Z" className={shapeClass} />;
+  }
+
+  if (node.type === 'XOR') {
+    return (
+      <>
+        <path d="M8 4 Q22 22 8 40" className={shapeClass} />
+        <path d="M14 4 Q28 22 14 40 H34 Q66 22 34 4 Z" className={shapeClass} />
+      </>
+    );
+  }
+
+  if (node.type === 'NOT') {
+    return (
+      <>
+        <path d="M14 4 L14 40 L50 22 Z" className={shapeClass} />
+        <circle cx="56" cy="22" r="4" className={shapeClass} />
+      </>
+    );
+  }
+
+  return <rect width="80" height="44" rx="8" className={shapeClass} />;
 }
 
 export function CircuitViewport({
@@ -130,23 +164,18 @@ export function CircuitViewport({
         })}
 
         {circuit.nodes.map((node) => (
-          <g
-            key={node.id}
-            transform={`translate(${node.x - 40}, ${node.y - 22})`}
-            className="circuit-node-hitbox"
-            onClick={() => onSelectNode?.(node.id)}
-          >
-            <rect
-              width="80"
-              height="44"
-              rx="8"
-              className={
-                selectedNodeId === node.id
-                  ? `${nodeClassName(node, (nodeValues[node.id] ?? 0) === 1)} circuit-node-selected`
-                  : nodeClassName(node, (nodeValues[node.id] ?? 0) === 1)
-              }
-            />
-            <text x="40" y="27" className="circuit-node-label">
+          <g key={node.id}>
+            <g
+              transform={`translate(${node.x - 40}, ${node.y - 22})`}
+              className="circuit-node-hitbox"
+              onClick={() => onSelectNode?.(node.id)}
+            >
+              {renderMilShape(
+                node,
+                nodeClassName(node, (nodeValues[node.id] ?? 0) === 1, selectedNodeId === node.id),
+              )}
+            </g>
+            <text x={node.x} y={node.y + 33} className="circuit-node-label">
               {node.label}
             </text>
           </g>
