@@ -2,6 +2,23 @@
 
 GateFlow ALU is an educational web app that visualizes a **1-bit full adder** at gate level with interactive simulation.
 
+## Demo / Screenshots
+
+> Replace these placeholder paths with your actual assets.
+
+### Screenshot
+
+![GateFlow ALU Screenshot](./docs/images/gateflow-screenshot.png)
+
+### Demo GIF
+
+![GateFlow ALU Demo](./docs/images/gateflow-demo.gif)
+
+### Asset Notes
+- Recommended screenshot width: 1280px+
+- Recommended GIF duration: 8-15s
+- Keep GIF under ~15MB for smooth GitHub rendering
+
 ---
 
 ## 日本語 (Japanese)
