@@ -1,5 +1,6 @@
 import type { CircuitGraph, CircuitNode, LogicValue, WireSignal } from '../../types';
 import { buildRoutedWire, getCircuitBounds, getPointAlongPolyline } from '../../renderer';
+import type { RoutedWire } from '../../renderer';
 
 interface CircuitViewportProps {
   circuit: CircuitGraph;
@@ -27,12 +28,30 @@ function outputAnchorX(node: CircuitNode): number {
 
 function nodeClassName(node: CircuitNode, isActive: boolean, isSelected: boolean): string {
   const classes = ['circuit-node', 'circuit-node-shape'];
-  if (node.type === 'INPUT') classes.push('circuit-node-input');
-  else if (node.type === 'OUTPUT') classes.push('circuit-node-output');
-  else classes.push('circuit-node-gate');
+  if (node.type === 'INPUT') {
+    classes.push('circuit-node-input');
+    classes.push(node.id === 'in-cin' ? 'circuit-node-input-cin' : 'circuit-node-input-ab');
+  } else if (node.type === 'OUTPUT') {
+    classes.push('circuit-node-output');
+  } else {
+    classes.push('circuit-node-gate');
+    if (node.type === 'NOT') classes.push('circuit-node-gate-not');
+    if (node.type === 'AND') classes.push('circuit-node-gate-and');
+    if (node.type === 'OR') classes.push('circuit-node-gate-or');
+  }
   if (isActive) classes.push('circuit-node-active');
   if (isSelected) classes.push('circuit-node-selected');
   return classes.join(' ');
+}
+
+function buildStraightWire(start: { x: number; y: number }, end: { x: number; y: number }): RoutedWire {
+  const points = [start, end];
+  const pathD = `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+  const labelPoint = {
+    x: (start.x + end.x) / 2,
+    y: (start.y + end.y) / 2,
+  };
+  return { points, pathD, labelPoint };
 }
 
 function renderMilShape(node: CircuitNode, shapeClass: string): JSX.Element {
@@ -93,9 +112,11 @@ export function CircuitViewport({
         }
         const start = { x: outputAnchorX(fromNode), y: fromNode.y };
         const end = { x: inputAnchorX(toNode), y: toNode.y };
-        return [edge.id, buildRoutedWire(start, end, edge.id)] as const;
+        const isInputToNot = fromNode.type === 'INPUT' && toNode.type === 'NOT';
+        const routed = isInputToNot ? buildStraightWire(start, end) : buildRoutedWire(start, end, edge.id);
+        return [edge.id, routed] as const;
       })
-      .filter((item): item is readonly [string, ReturnType<typeof buildRoutedWire>] => item !== null),
+      .filter((item): item is readonly [string, RoutedWire] => item !== null),
   );
   const inputNodes = circuit.nodes.filter((node) => circuit.inputNodeIds.includes(node.id));
   const outputNodes = circuit.nodes.filter((node) => circuit.outputNodeIds.includes(node.id));
