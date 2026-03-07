@@ -15,7 +15,7 @@
 
 ## Phase 2: Static full adder view
 - [x] Implement static SVG rendering for a 1-bit full adder
-- [ ] Render input nodes A, B, Cin
+- [x] Render input nodes A, B, Cin
 - [ ] Render output nodes Sum, Cout
 - [ ] Render gates and wires with readable labels
 - [ ] Add a clean educational layout
