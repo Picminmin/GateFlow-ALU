@@ -10,6 +10,7 @@ import {
   CostInsightPanel,
   GateDetailsPanel,
   InputsPanel,
+  OutputInsightPanel,
   PlaybackControls,
   EventLogPanel,
 } from './components';
@@ -24,6 +25,7 @@ import {
   verifyDeterministicStepping,
 } from './simulation';
 import type { SimulationState } from './types';
+import type { LogicValue } from './types';
 import type { InputsPanelValues } from './components/panels/InputsPanel';
 
 function App() {
@@ -73,6 +75,8 @@ function App() {
     cin: inputs.cin,
     currentTime: animationTime,
   });
+  const actualSum = (simulationState.values['out-sum'] ?? null) as LogicValue | null;
+  const actualCout = (simulationState.values['out-cout'] ?? null) as LogicValue | null;
   const modeIsOptimized = mode === 'optimized';
 
   const appendLog = (message: string) => {
@@ -266,6 +270,7 @@ function App() {
           <p className={deterministicSteppingWorks ? 'validation-ok' : 'validation-error'}>
             {steppingStatus}
           </p>
+          <OutputInsightPanel inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
           {mode === 'optimized' ? (
             <p className="optimization-progress">
               {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)

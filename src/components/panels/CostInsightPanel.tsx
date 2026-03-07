@@ -9,6 +9,11 @@ interface CostInsightPanelProps {
 
 export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostInsightPanelProps) {
   const [curveMode, setCurveMode] = useState(false);
+  const carryChainLength = insight.cin === 1 ? bitWidth : Math.max(1, Math.round(bitWidth * 0.2));
+  const derivedAddDelay = 2.2 + 1.2 * carryChainLength;
+  const derivedAddEvents = 9 * bitWidth + 4 * carryChainLength;
+  const derivedMulDelay = 1.6 * bitWidth * bitWidth + 3.4 * bitWidth;
+  const derivedMulEvents = 22 * bitWidth * bitWidth + 10 * bitWidth;
 
   const chart = useMemo(() => {
     const width = 880;
@@ -105,6 +110,15 @@ export function CostInsightPanel({ insight, bitWidth, onBitWidthChange }: CostIn
             <p>Mul Delay = 1.6N^2 + 3.4N</p>
             <p>Mul Events = 22N^2 + 10N</p>
           </div>
+
+          <p className="relation-note">
+            Delay and Events are sibling metrics in this model. Both are estimated from N and
+            carryChainLength, so Events cannot be uniquely derived from Delay alone.
+          </p>
+          <p className="relation-example">
+            Current N={bitWidth}, carryChainLength={carryChainLength}: Add Delay={derivedAddDelay.toFixed(1)}, Add
+            Events={derivedAddEvents}, Mul Delay={derivedMulDelay.toFixed(1)}, Mul Events={derivedMulEvents}.
+          </p>
 
           <p className="carry-caption">Carry arrival (bit0 -&gt; bitN-1):</p>
           <div className="carry-lane" role="img" aria-label="carry propagation lane">

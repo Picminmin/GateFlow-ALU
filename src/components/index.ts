@@ -4,4 +4,5 @@ export { CostInsightPanel } from './panels/CostInsightPanel';
 export { EventLogPanel } from './panels/EventLogPanel';
 export { GateDetailsPanel } from './panels/GateDetailsPanel';
 export { InputsPanel } from './panels/InputsPanel';
+export { OutputInsightPanel } from './panels/OutputInsightPanel';
 export { PlaybackControls } from './panels/PlaybackControls';

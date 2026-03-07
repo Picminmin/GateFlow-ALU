@@ -479,6 +479,19 @@ body {
   margin: 0.15rem 0;
 }
 
+.relation-note {
+  margin: 0.55rem 0 0;
+  font-size: 0.92rem;
+  color: #334155;
+}
+
+.relation-example {
+  margin: 0.25rem 0 0;
+  font-size: 0.92rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
 .carry-caption {
   margin: 0.6rem 0 0.25rem;
   font-size: 0.92rem;
@@ -576,6 +589,73 @@ body {
   font-weight: 700;
 }
 
+.output-insight {
+  margin: 0.45rem 0 0.8rem;
+  background: #e2e8f0;
+}
+
+.output-input-row {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.output-formula {
+  margin: 0.2rem 0 0;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.output-meaning {
+  margin: 0.25rem 0 0;
+  font-size: 0.92rem;
+  color: #1e293b;
+}
+
+.output-arithmetic {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.output-values {
+  margin-top: 0.55rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 0.45rem;
+}
+
+.output-values dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.output-values dd {
+  margin: 0.12rem 0 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.output-match-ok,
+.output-match-warn {
+  margin: 0.55rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.output-match-ok {
+  color: #047857;
+}
+
+.output-match-warn {
+  color: #b45309;
+}
+
 @media (max-width: 1024px) {
   .main-layout {
     grid-template-columns: 1fr;
@@ -586,6 +666,10 @@ body {
   }
 
   .cost-metrics {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  .output-values {
     grid-template-columns: repeat(2, minmax(120px, 1fr));
   }
 }
