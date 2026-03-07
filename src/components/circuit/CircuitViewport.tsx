@@ -1,22 +1,24 @@
-import type { CircuitGraph, CircuitNode, WireSignal } from '../../types';
+import type { CircuitGraph, CircuitNode, LogicValue, WireSignal } from '../../types';
 import { getCircuitBounds } from '../../renderer';
 
 interface CircuitViewportProps {
   circuit: CircuitGraph;
   activeSignals?: WireSignal[];
   currentTime?: number;
+  nodeValues?: Record<string, LogicValue>;
 }
 
-function nodeClassName(node: CircuitNode): string {
+function nodeClassName(node: CircuitNode, isActive: boolean): string {
   if (node.type === 'INPUT') return 'circuit-node circuit-node-input';
   if (node.type === 'OUTPUT') return 'circuit-node circuit-node-output';
-  return 'circuit-node circuit-node-gate';
+  return isActive ? 'circuit-node circuit-node-gate circuit-node-active' : 'circuit-node circuit-node-gate';
 }
 
 export function CircuitViewport({
   circuit,
   activeSignals = [],
   currentTime = 0,
+  nodeValues = {},
 }: CircuitViewportProps) {
   const nodeById = new Map(circuit.nodes.map((node) => [node.id, node]));
   const bounds = getCircuitBounds(circuit);
@@ -115,7 +117,7 @@ export function CircuitViewport({
 
         {circuit.nodes.map((node) => (
           <g key={node.id} transform={`translate(${node.x - 40}, ${node.y - 22})`}>
-            <rect width="80" height="44" rx="8" className={nodeClassName(node)} />
+            <rect width="80" height="44" rx="8" className={nodeClassName(node, (nodeValues[node.id] ?? 0) === 1)} />
             <text x="40" y="27" className="circuit-node-label">
               {node.label}
             </text>

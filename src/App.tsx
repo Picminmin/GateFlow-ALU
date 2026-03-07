@@ -13,6 +13,17 @@ function App() {
   const demoSignals: WireSignal[] = demoSignalEdge
     ? [{ edgeId: demoSignalEdge, value: 1, startTime: 0, endTime: 1 }]
     : [];
+  const demoNodeValues = activeCircuit.nodes.reduce<Record<string, 0 | 1>>((acc, node) => {
+    acc[node.id] = 0;
+    return acc;
+  }, {});
+  if (demoSignalEdge) {
+    const activeEdge = activeCircuit.edges.find((edge) => edge.id === demoSignalEdge);
+    if (activeEdge) {
+      demoNodeValues[activeEdge.from] = 1;
+      demoNodeValues[activeEdge.to] = 1;
+    }
+  }
 
   return (
     <main className="app-shell">
@@ -52,7 +63,12 @@ function App() {
             ? 'Truth table check: pass (all 8 input combinations)'
             : `Truth table check: fail (${validation.mismatches.length} mismatch(es))`}
         </p>
-        <CircuitViewport circuit={activeCircuit} activeSignals={demoSignals} currentTime={0.5} />
+        <CircuitViewport
+          circuit={activeCircuit}
+          activeSignals={demoSignals}
+          currentTime={0.5}
+          nodeValues={demoNodeValues}
+        />
       </section>
     </main>
   );

@@ -146,6 +146,12 @@ body {
   stroke: #0f766e;
 }
 
+.circuit-node-active {
+  fill: #ccfbf1;
+  stroke: #0f766e;
+  stroke-width: 3;
+}
+
 .circuit-node-output {
   fill: #fffbeb;
   stroke: #b45309;
