@@ -10,6 +10,21 @@ interface CircuitViewportProps {
   onSelectNode?: (nodeId: string) => void;
 }
 
+function inputAnchorX(node: CircuitNode): number {
+  if (node.type === 'INPUT' || node.type === 'OUTPUT') return node.x - 40;
+  if (node.type === 'NOT') return node.x - 26;
+  if (node.type === 'AND' || node.type === 'OR' || node.type === 'XOR') return node.x - 28;
+  return node.x - 40;
+}
+
+function outputAnchorX(node: CircuitNode): number {
+  if (node.type === 'INPUT' || node.type === 'OUTPUT') return node.x + 40;
+  if (node.type === 'NOT') return node.x + 20;
+  if (node.type === 'AND') return node.x + 14;
+  if (node.type === 'OR' || node.type === 'XOR') return node.x + 26;
+  return node.x + 40;
+}
+
 function nodeClassName(node: CircuitNode, isActive: boolean, isSelected: boolean): string {
   const classes = ['circuit-node', 'circuit-node-shape'];
   if (node.type === 'INPUT') classes.push('circuit-node-input');
@@ -76,12 +91,14 @@ export function CircuitViewport({
         if (!fromNode || !toNode) {
           return null;
         }
-        const start = { x: fromNode.x + 40, y: fromNode.y };
-        const end = { x: toNode.x - 40, y: toNode.y };
+        const start = { x: outputAnchorX(fromNode), y: fromNode.y };
+        const end = { x: inputAnchorX(toNode), y: toNode.y };
         return [edge.id, buildRoutedWire(start, end, edge.id)] as const;
       })
       .filter((item): item is readonly [string, ReturnType<typeof buildRoutedWire>] => item !== null),
   );
+  const inputNodes = circuit.nodes.filter((node) => circuit.inputNodeIds.includes(node.id));
+  const outputNodes = circuit.nodes.filter((node) => circuit.outputNodeIds.includes(node.id));
 
   return (
     <section className="circuit-viewport" aria-label="Circuit viewport">
@@ -93,13 +110,12 @@ export function CircuitViewport({
         <defs>
           <radialGradient id="signal-dot-gradient" cx="50%" cy="50%" r="60%">
             <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="40%" stopColor="#ffffff" />
-            <stop offset="72%" stopColor="#a5f3fc" />
-            <stop offset="86%" stopColor="#c4b5fd" />
-            <stop offset="100%" stopColor="#f9a8d4" />
+            <stop offset="45%" stopColor="#e0f2fe" />
+            <stop offset="80%" stopColor="#67e8f9" />
+            <stop offset="100%" stopColor="#22d3ee" />
           </radialGradient>
-          <filter id="signal-dot-glow" x="-120%" y="-120%" width="340%" height="340%">
-            <feGaussianBlur stdDeviation="2.1" result="blur" />
+          <filter id="signal-dot-glow" x="-160%" y="-160%" width="420%" height="420%">
+            <feGaussianBlur stdDeviation="2.8" result="blur" />
             <feColorMatrix
               in="blur"
               type="matrix"
@@ -107,7 +123,7 @@ export function CircuitViewport({
                 1 0 0 0 0
                 0 1 0 0 0
                 0 0 1 0 0
-                0 0 0 1.7 0
+                0 0 0 2.1 0
               "
               result="boosted"
             />
@@ -169,9 +185,10 @@ export function CircuitViewport({
           if (!routedWire) {
             return null;
           }
-          const duration = Math.max(1, signal.endTime - signal.startTime);
+          const duration = Math.max(0.0001, signal.endTime - signal.startTime);
           const rawProgress = (currentTime - signal.startTime) / duration;
-          const progress = Math.min(1, Math.max(0, rawProgress));
+          const clamped = Math.min(1, Math.max(0, rawProgress));
+          const progress = 1 - (1 - clamped) * (1 - clamped);
           const dot = getPointAlongPolyline(routedWire.points, progress);
 
           return (
@@ -201,6 +218,18 @@ export function CircuitViewport({
               {node.label}
             </text>
           </g>
+        ))}
+
+        {inputNodes.map((node) => (
+          <text key={`input-label-${node.id}`} x={node.x - 56} y={node.y + 4} className="circuit-io-annotation">
+            {node.label}
+          </text>
+        ))}
+
+        {outputNodes.map((node) => (
+          <text key={`output-label-${node.id}`} x={node.x + 52} y={node.y + 4} className="circuit-output-annotation">
+            {node.label} Output Register
+          </text>
         ))}
       </svg>
     </section>

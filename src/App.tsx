@@ -28,6 +28,7 @@ function App() {
   const [eventLog, setEventLog] = useState<string[]>([]);
   const [simulationState, setSimulationState] = useState<SimulationState>(createInitialSimulationState());
   const engineRef = useRef<SimulationEngine>(createSimulationEngine());
+  const simTimeRef = useRef(0);
   const activeCircuit = getFullAdderCircuit(mode);
   const selectedNode = activeCircuit.nodes.find((node) => node.id === selectedNodeId) ?? null;
   const validation = validateFullAdderCircuit(activeCircuit);
@@ -71,6 +72,8 @@ function App() {
       'in-cin': inputs.cin,
     });
     const snapshot = engine.snapshot();
+    simTimeRef.current = 0;
+    setAnimationTime(0);
     setSimulationState(snapshot);
   }, [activeCircuit, inputs.a, inputs.b, inputs.cin]);
 
@@ -87,31 +90,48 @@ function App() {
     if (!isPlaying) {
       return undefined;
     }
-    const stepIntervalMs = Math.max(180, 900 / speed);
+    let frameId = 0;
+    let lastTimestamp: number | null = null;
+    const simUnitsPerSecond = 0.65;
 
-    const timerId = window.setInterval(() => {
-      const nextState = engineRef.current.step();
-      setSimulationState(nextState);
-      setAnimationTime(nextState.elapsedTime);
-
-      if (nextState.eventQueue.length === 0) {
-        setIsPlaying(false);
+    const tick = (timestamp: number) => {
+      if (lastTimestamp == null) {
+        lastTimestamp = timestamp;
       }
-    }, stepIntervalMs);
+      const deltaSec = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+      simTimeRef.current += deltaSec * speed * simUnitsPerSecond;
 
-    return () => window.clearInterval(timerId);
+      let snapshot = engineRef.current.snapshot();
+      while (snapshot.eventQueue.length > 0 && snapshot.eventQueue[0].time <= simTimeRef.current) {
+        snapshot = engineRef.current.step();
+      }
+
+      setSimulationState(snapshot);
+      setAnimationTime(simTimeRef.current);
+
+      if (snapshot.eventQueue.length === 0) {
+        setIsPlaying(false);
+        return;
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
   }, [isPlaying, speed]);
 
   const handleStep = () => {
     const nextState = engineRef.current.step();
     setSimulationState(nextState);
-    setAnimationTime(nextState.elapsedTime);
+    simTimeRef.current = nextState.elapsedTime;
+    setAnimationTime(simTimeRef.current);
     appendLog('Step executed');
   };
 
   const handleReset = () => {
     initializeSimulation();
-    setAnimationTime(0);
     setIsPlaying(false);
     appendLog('Playback reset');
   };
