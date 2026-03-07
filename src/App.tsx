@@ -88,6 +88,16 @@ function App() {
     'Stage 3: Merge carry contributors before final OR.',
     'Stage 4: Rewrite as XOR-based minimal graph for Sum/Cout.',
   ];
+  const mergedLabelSummary =
+    optimizationFlash.mergedNodeIds.length > 0
+      ? optimizationFlash.mergedNodeIds
+          .map((id) => displayedCircuit.nodes.find((node) => node.id === id)?.label ?? id)
+          .join(', ')
+      : 'None';
+  const removedLabelSummary =
+    optimizationFlash.removedNodes.length > 0
+      ? optimizationFlash.removedNodes.map((node) => node.label).join(', ')
+      : 'None';
 
   const appendLog = (message: string) => {
     setEventLog((prev) => {
@@ -131,7 +141,7 @@ function App() {
 
     const timer = window.setTimeout(() => {
       setOptimizedStageIndex((prev) => Math.min(prev + 1, optimizedStages.length - 1));
-    }, 1400);
+    }, 2400);
 
     return () => window.clearTimeout(timer);
   }, [mode, optimizedStageIndex, optimizedStages.length]);
@@ -160,7 +170,7 @@ function App() {
 
     const clearTimer = window.setTimeout(() => {
       setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
-    }, 900);
+    }, 1700);
 
     return () => window.clearTimeout(clearTimer);
   }, [mode, optimizedStageIndex, optimizedStages]);
@@ -315,6 +325,32 @@ function App() {
             {steppingStatus}
           </p>
           <OutputInsightPanel inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
+          {mode === 'optimized' ? (
+            <section className="optimization-progress">
+              <p>
+                {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
+              </p>
+              <ol className="optimization-steps">
+                {optimizationNarrative.map((step, index) => (
+                  <li
+                    key={step}
+                    className={index === optimizedStageIndex ? 'optimization-step-active' : 'optimization-step'}
+                  >
+                    {step}
+                  </li>
+                ))}
+              </ol>
+              <p className="optimization-diff-note">
+                Added/merged (cyan): {optimizationFlash.mergedNodeIds.length} | Removed (red ghost):{' '}
+                {optimizationFlash.removedNodes.length}
+              </p>
+              <p className="optimization-diff-detail">
+                Merged labels: {mergedLabelSummary}
+                <br />
+                Removed labels: {removedLabelSummary}
+              </p>
+            </section>
+          ) : null}
           <div className="circuit-visual-wrap">
             {mode === 'optimized' ? (
               <button
@@ -348,27 +384,6 @@ function App() {
               }}
             />
           </div>
-          {mode === 'optimized' ? (
-            <section className="optimization-progress">
-              <p>
-                {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
-              </p>
-              <ol className="optimization-steps">
-                {optimizationNarrative.map((step, index) => (
-                  <li
-                    key={step}
-                    className={index === optimizedStageIndex ? 'optimization-step-active' : 'optimization-step'}
-                  >
-                    {step}
-                  </li>
-                ))}
-              </ol>
-              <p className="optimization-diff-note">
-                Added/merged (cyan): {optimizationFlash.mergedNodeIds.length} | Removed (red ghost):{' '}
-                {optimizationFlash.removedNodes.length}
-              </p>
-            </section>
-          ) : null}
         </section>
         <div className="right-stack">
           <GateDetailsPanel
