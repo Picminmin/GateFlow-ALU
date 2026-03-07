@@ -27,7 +27,7 @@ body {
 
 .main-layout {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 220px 1fr 240px;
   gap: 1rem;
   align-items: start;
 }
@@ -102,6 +102,28 @@ body {
 .panel h2 {
   margin: 0 0 0.5rem;
   font-size: 1rem;
+}
+
+.details-grid {
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.details-grid div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.details-grid dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.details-grid dd {
+  margin: 0;
+  font-weight: 700;
 }
 
 .inputs-grid {
@@ -229,4 +251,12 @@ body {
   font-size: 13px;
   font-weight: 600;
   text-anchor: middle;
+}
+
+.circuit-node-hitbox {
+  cursor: pointer;
+}
+
+.circuit-node-selected {
+  stroke: #7c3aed;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CircuitViewport, InputsPanel, PlaybackControls } from './components';
+import { CircuitViewport, GateDetailsPanel, InputsPanel, PlaybackControls } from './components';
 import { getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
 import { validateFullAdderCircuit } from './simulation';
@@ -12,7 +12,9 @@ function App() {
   const [animationTime, setAnimationTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const activeCircuit = getFullAdderCircuit(mode);
+  const selectedNode = activeCircuit.nodes.find((node) => node.id === selectedNodeId) ?? null;
   const validation = validateFullAdderCircuit(activeCircuit);
   const demoSignalEdge = activeCircuit.edges[0]?.id;
   const demoSignals: WireSignal[] = demoSignalEdge
@@ -29,6 +31,10 @@ function App() {
       demoNodeValues[activeEdge.to] = 1;
     }
   }
+
+  useEffect(() => {
+    setSelectedNodeId(null);
+  }, [mode]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -117,8 +123,14 @@ function App() {
           activeSignals={demoSignals}
           currentTime={animationTime}
           nodeValues={demoNodeValues}
+          selectedNodeId={selectedNodeId}
+          onSelectNode={setSelectedNodeId}
         />
         </section>
+        <GateDetailsPanel
+          selectedNode={selectedNode}
+          outputValue={selectedNode ? demoNodeValues[selectedNode.id] ?? 0 : 0}
+        />
       </div>
     </main>
   );

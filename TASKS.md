@@ -45,7 +45,7 @@
 - [x] Add inputs panel for A, B, Cin
 - [x] Add playback controls: play, pause, reset, step
 - [x] Add speed control
-- [ ] Add selected gate details panel
+- [x] Add selected gate details panel
 - [ ] Add bottom event log panel
 
 ## Phase 7: Validation and cleanup

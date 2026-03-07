@@ -6,6 +6,8 @@ interface CircuitViewportProps {
   activeSignals?: WireSignal[];
   currentTime?: number;
   nodeValues?: Record<string, LogicValue>;
+  selectedNodeId?: string | null;
+  onSelectNode?: (nodeId: string) => void;
 }
 
 function nodeClassName(node: CircuitNode, isActive: boolean): string {
@@ -19,6 +21,8 @@ export function CircuitViewport({
   activeSignals = [],
   currentTime = 0,
   nodeValues = {},
+  selectedNodeId = null,
+  onSelectNode,
 }: CircuitViewportProps) {
   const nodeById = new Map(circuit.nodes.map((node) => [node.id, node]));
   const bounds = getCircuitBounds(circuit);
@@ -116,8 +120,22 @@ export function CircuitViewport({
         })}
 
         {circuit.nodes.map((node) => (
-          <g key={node.id} transform={`translate(${node.x - 40}, ${node.y - 22})`}>
-            <rect width="80" height="44" rx="8" className={nodeClassName(node, (nodeValues[node.id] ?? 0) === 1)} />
+          <g
+            key={node.id}
+            transform={`translate(${node.x - 40}, ${node.y - 22})`}
+            className="circuit-node-hitbox"
+            onClick={() => onSelectNode?.(node.id)}
+          >
+            <rect
+              width="80"
+              height="44"
+              rx="8"
+              className={
+                selectedNodeId === node.id
+                  ? `${nodeClassName(node, (nodeValues[node.id] ?? 0) === 1)} circuit-node-selected`
+                  : nodeClassName(node, (nodeValues[node.id] ?? 0) === 1)
+              }
+            />
             <text x="40" y="27" className="circuit-node-label">
               {node.label}
             </text>
