@@ -25,6 +25,13 @@ body {
   margin: 0 auto;
 }
 
+.main-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
 .app-header {
   margin-bottom: 1.25rem;
 }
@@ -78,6 +85,33 @@ body {
   border-radius: 16px;
   padding: 0.75rem;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+
+.panel h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.inputs-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.inputs-grid button {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #1f2937;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  cursor: pointer;
 }
 
 .validation-ok,

@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import { CircuitViewport } from './components';
+import { CircuitViewport, InputsPanel } from './components';
 import { getFullAdderCircuit } from './circuits/fullAdder';
 import type { FullAdderMode } from './circuits/fullAdder';
 import { validateFullAdderCircuit } from './simulation';
 import type { WireSignal } from './types';
+import type { InputsPanelValues } from './components/panels/InputsPanel';
 
 function App() {
   const [mode, setMode] = useState<FullAdderMode>('primitive');
+  const [inputs, setInputs] = useState<InputsPanelValues>({ a: 0, b: 0, cin: 0 });
   const [animationTime, setAnimationTime] = useState(0);
   const activeCircuit = getFullAdderCircuit(mode);
   const validation = validateFullAdderCircuit(activeCircuit);
@@ -21,7 +23,7 @@ function App() {
   if (demoSignalEdge) {
     const activeEdge = activeCircuit.edges.find((edge) => edge.id === demoSignalEdge);
     if (activeEdge) {
-      demoNodeValues[activeEdge.from] = 1;
+      demoNodeValues[activeEdge.from] = inputs.a;
       demoNodeValues[activeEdge.to] = 1;
     }
   }
@@ -76,7 +78,9 @@ function App() {
           </label>
         </fieldset>
       </header>
-      <section className="circuit-card">
+      <div className="main-layout">
+        <InputsPanel values={inputs} onChange={setInputs} />
+        <section className="circuit-card">
         <p className={validation.isValid ? 'validation-ok' : 'validation-error'}>
           {validation.isValid
             ? 'Truth table check: pass (all 8 input combinations)'
@@ -88,7 +92,8 @@ function App() {
           currentTime={animationTime}
           nodeValues={demoNodeValues}
         />
-      </section>
+        </section>
+      </div>
     </main>
   );
 }

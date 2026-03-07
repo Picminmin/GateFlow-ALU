@@ -42,7 +42,7 @@
 - [x] Support deterministic step-by-step playback
 
 ## Phase 6: Controls and UI
-- [ ] Add inputs panel for A, B, Cin
+- [x] Add inputs panel for A, B, Cin
 - [ ] Add playback controls: play, pause, reset, step
 - [ ] Add speed control
 - [ ] Add selected gate details panel
