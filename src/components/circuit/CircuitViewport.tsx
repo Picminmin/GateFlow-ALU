@@ -53,10 +53,22 @@ export function CircuitViewport({
           const y1 = fromNode.y;
           const x2 = toNode.x - 40;
           const y2 = toNode.y;
+          const isActive = activeSignals.some(
+            (signal) =>
+              signal.edgeId === edge.id &&
+              currentTime >= signal.startTime &&
+              currentTime <= signal.endTime,
+          );
 
           return (
             <g key={edge.id}>
-              <line x1={x1} y1={y1} x2={x2} y2={y2} className="circuit-edge" />
+              <line
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                className={isActive ? 'circuit-edge circuit-edge-active' : 'circuit-edge'}
+              />
               {edge.label ? (
                 <text
                   x={(x1 + x2) / 2}

@@ -115,6 +115,11 @@ body {
   stroke-width: 2;
 }
 
+.circuit-edge-active {
+  stroke: #0284c7;
+  stroke-width: 3;
+}
+
 .circuit-edge-label {
   fill: #374151;
   font-size: 11px;

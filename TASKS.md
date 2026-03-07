@@ -36,7 +36,7 @@
 
 ## Phase 5: Animation
 - [x] Represent active signals as moving dots on wires
-- [ ] Highlight active wires
+- [x] Highlight active wires
 - [ ] Highlight gate outputs when active
 - [ ] Add time-based animation loop
 - [ ] Support deterministic step-by-step playback
