@@ -11,7 +11,7 @@
 - [x] Create circuit definition module structure
 - [x] Create simulation engine module structure
 - [x] Create renderer module structure
-- [ ] Create UI component structure
+- [x] Create UI component structure
 
 ## Phase 2: Static full adder view
 - [ ] Implement static SVG rendering for a 1-bit full adder
