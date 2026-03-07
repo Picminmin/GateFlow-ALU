@@ -31,6 +31,35 @@ export function createSimulationEngine(): SimulationEngine {
     }, {});
   }
 
+  function stabilizeValues(
+    targetCircuit: CircuitGraph,
+    seedValues: Record<string, LogicValue>,
+  ): Record<string, LogicValue> {
+    const values = { ...seedValues };
+    const iterationLimit = Math.max(1, targetCircuit.nodes.length * 4);
+
+    for (let i = 0; i < iterationLimit; i += 1) {
+      let changed = false;
+
+      targetCircuit.nodes.forEach((node) => {
+        if (node.type === 'INPUT') {
+          return;
+        }
+        const nextValue = evaluateNodeOutput(targetCircuit, node.id, values);
+        if (values[node.id] !== nextValue) {
+          values[node.id] = nextValue;
+          changed = true;
+        }
+      });
+
+      if (!changed) {
+        break;
+      }
+    }
+
+    return values;
+  }
+
   function queueInputEvent(nodeId: string, value: LogicValue): void {
     if (!circuit) {
       return;
@@ -75,9 +104,10 @@ export function createSimulationEngine(): SimulationEngine {
   return {
     setCircuit(nextCircuit) {
       circuit = nextCircuit;
+      const seeded = initializeValues(nextCircuit);
       state = {
         ...createInitialSimulationState(),
-        values: initializeValues(nextCircuit),
+        values: stabilizeValues(nextCircuit, seeded),
       };
       eventCounter = 0;
     },
@@ -97,7 +127,7 @@ export function createSimulationEngine(): SimulationEngine {
 
       state = {
         ...createInitialSimulationState(),
-        values: initializeValues(circuit),
+        values: stabilizeValues(circuit, initializeValues(circuit)),
       };
       eventCounter = 0;
     },

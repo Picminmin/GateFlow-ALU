@@ -91,6 +91,50 @@ body {
   font-size: 1.45rem;
 }
 
+.mode-guide {
+  margin-top: 0.8rem;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.mode-guide-optimized {
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.4);
+}
+
+.mode-guide-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.mode-guide-details {
+  margin-top: 0.35rem;
+  color: #cbd5e1;
+}
+
+.mode-guide-details summary {
+  cursor: pointer;
+  color: #7dd3fc;
+  font-weight: 700;
+}
+
+.mode-guide-details p {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.mode-guide code {
+  background: rgba(30, 41, 59, 0.9);
+  padding: 0.1rem 0.3rem;
+  border-radius: 5px;
+  color: #e2e8f0;
+}
+
 .circuit-card {
   background: #f3f4f6;
   border: 1px solid #dbeafe;
@@ -318,6 +362,13 @@ body {
   fill: #f8fafc;
   font-size: 12px;
   font-weight: 700;
+  text-anchor: middle;
+}
+
+.circuit-output-value {
+  fill: #fb923c;
+  font-size: 18px;
+  font-weight: 800;
   text-anchor: middle;
 }
 

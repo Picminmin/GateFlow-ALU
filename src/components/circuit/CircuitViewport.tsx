@@ -238,6 +238,11 @@ export function CircuitViewport({
             <text x={node.x} y={node.y + 33} className="circuit-node-label">
               {node.label}
             </text>
+            {node.type === 'OUTPUT' ? (
+              <text x={node.x} y={node.y + 6} className="circuit-output-value">
+                {nodeValues[node.id] ?? 0}
+              </text>
+            ) : null}
           </g>
         ))}
 

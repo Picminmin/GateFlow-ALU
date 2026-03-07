@@ -69,6 +69,7 @@ function App() {
     cin: inputs.cin,
     currentTime: animationTime,
   });
+  const modeIsOptimized = mode === 'optimized';
 
   const appendLog = (message: string) => {
     setEventLog((prev) => {
@@ -181,6 +182,24 @@ function App() {
             Optimized
           </label>
         </fieldset>
+        <section className={modeIsOptimized ? 'mode-guide mode-guide-optimized' : 'mode-guide'}>
+          <p className="mode-guide-title">
+            {modeIsOptimized
+              ? 'Optimized mode: gate count/depth minimized'
+              : 'Primitive mode: explicit step-by-step gate expansion'}
+          </p>
+          <details className="mode-guide-details">
+            <summary>How Optimized is derived</summary>
+            <p>
+              Full-adder carry is transformed from <code>AB + ACin + BCin</code> to
+              <code> AB + Cin(A xor B)</code>. This removes redundant gates and shortens propagation.
+            </p>
+            <p>
+              In this app, Optimized uses a distinct circuit graph with fewer nodes and shallower carry
+              path than Primitive.
+            </p>
+          </details>
+        </section>
       </header>
       <div className="main-layout">
         <div className="left-stack">
