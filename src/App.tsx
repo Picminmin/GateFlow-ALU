@@ -37,6 +37,7 @@ function App() {
   const [bitWidth, setBitWidth] = useState(8);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [optimizedStageIndex, setOptimizedStageIndex] = useState(2);
+  const [isOptimizationExpanded, setIsOptimizationExpanded] = useState(true);
   const [optimizationFlash, setOptimizationFlash] = useState<{
     mergedNodeIds: string[];
     removedNodes: CircuitNode[];
@@ -125,6 +126,7 @@ function App() {
     appendLog(`Mode switched to ${mode}`);
     if (mode === 'optimized') {
       setOptimizedStageIndex(0);
+      setIsOptimizationExpanded(true);
     } else {
       setOptimizedStageIndex(optimizedStages.length - 1);
       setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
@@ -229,6 +231,42 @@ function App() {
     appendLog('Playback reset');
   };
 
+  const circuitFigure = (
+    <div className="circuit-visual-wrap">
+      {mode === 'optimized' ? (
+        <button
+          type="button"
+          className="optimization-replay-btn"
+          onClick={() => {
+            setOptimizedStageIndex(0);
+            setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
+            appendLog('Optimization replay restarted');
+          }}
+        >
+          Replay Optimization
+        </button>
+      ) : null}
+      <CircuitViewport
+        circuit={displayedCircuit}
+        activeSignals={showOptimizedTransition ? [] : simulationState.activeSignals}
+        currentTime={animationTime}
+        nodeValues={showOptimizedTransition ? {} : simulationState.values}
+        inputValues={{
+          'in-a': inputs.a,
+          'in-b': inputs.b,
+          'in-cin': inputs.cin,
+        }}
+        highlightNodeIds={optimizationFlash.mergedNodeIds}
+        ghostNodes={optimizationFlash.removedNodes}
+        selectedNodeId={selectedNodeId}
+        onSelectNode={(nodeId) => {
+          setSelectedNodeId(nodeId);
+          appendLog(`Selected node: ${nodeId}`);
+        }}
+      />
+    </div>
+  );
+
   return (
     <main className="app-shell">
       <header className="app-header">
@@ -313,65 +351,48 @@ function App() {
         </div>
         <section className="circuit-card">
           <OutputInsightPanel inputs={inputs} actualSum={actualSum} actualCout={actualCout} />
+          {mode === 'optimized' && !isOptimizationExpanded ? circuitFigure : null}
           {mode === 'optimized' ? (
-            <section className="optimization-progress">
-              <p>
-                {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
-              </p>
-              <ol className="optimization-steps">
-                {optimizationNarrative.map((step, index) => (
-                  <li
-                    key={step}
-                    className={index === optimizedStageIndex ? 'optimization-step-active' : 'optimization-step'}
-                  >
-                    {step}
-                  </li>
-                ))}
-              </ol>
-              <p className="optimization-diff-note">
-                Added/merged (cyan): {optimizationFlash.mergedNodeIds.length} | Removed (red ghost):{' '}
-                {optimizationFlash.removedNodes.length}
-              </p>
-              <p className="optimization-diff-detail">
-                Merged labels: {mergedLabelSummary}
-                <br />
-                Removed labels: {removedLabelSummary}
-              </p>
+            <section className={isOptimizationExpanded ? 'optimization-progress' : 'optimization-progress compact'}>
+              <div className="optimization-head">
+                <p>
+                  {displayedCircuit.label} ({displayedCircuit.nodes.length} nodes)
+                </p>
+                <button
+                  type="button"
+                  className="optimization-toggle-btn"
+                  onClick={() => setIsOptimizationExpanded((prev) => !prev)}
+                  aria-label={isOptimizationExpanded ? 'Hide optimization details' : 'Show optimization details'}
+                >
+                  {isOptimizationExpanded ? '△' : '▽'}
+                </button>
+              </div>
+              {isOptimizationExpanded ? (
+                <>
+                  <ol className="optimization-steps">
+                    {optimizationNarrative.map((step, index) => (
+                      <li
+                        key={step}
+                        className={index === optimizedStageIndex ? 'optimization-step-active' : 'optimization-step'}
+                      >
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="optimization-diff-note">
+                    Added/merged (cyan): {optimizationFlash.mergedNodeIds.length} | Removed (red ghost):{' '}
+                    {optimizationFlash.removedNodes.length}
+                  </p>
+                  <p className="optimization-diff-detail">
+                    Merged labels: {mergedLabelSummary}
+                    <br />
+                    Removed labels: {removedLabelSummary}
+                  </p>
+                </>
+              ) : null}
             </section>
           ) : null}
-          <div className="circuit-visual-wrap">
-            {mode === 'optimized' ? (
-              <button
-                type="button"
-                className="optimization-replay-btn"
-                onClick={() => {
-                  setOptimizedStageIndex(0);
-                  setOptimizationFlash({ mergedNodeIds: [], removedNodes: [] });
-                  appendLog('Optimization replay restarted');
-                }}
-              >
-                Replay Optimization
-              </button>
-            ) : null}
-            <CircuitViewport
-              circuit={displayedCircuit}
-              activeSignals={showOptimizedTransition ? [] : simulationState.activeSignals}
-              currentTime={animationTime}
-              nodeValues={showOptimizedTransition ? {} : simulationState.values}
-              inputValues={{
-                'in-a': inputs.a,
-                'in-b': inputs.b,
-                'in-cin': inputs.cin,
-              }}
-              highlightNodeIds={optimizationFlash.mergedNodeIds}
-              ghostNodes={optimizationFlash.removedNodes}
-              selectedNodeId={selectedNodeId}
-              onSelectNode={(nodeId) => {
-                setSelectedNodeId(nodeId);
-                appendLog(`Selected node: ${nodeId}`);
-              }}
-            />
-          </div>
+          {mode !== 'optimized' || isOptimizationExpanded ? circuitFigure : null}
         </section>
         <div className="right-stack">
           <section className="panel learning-status">

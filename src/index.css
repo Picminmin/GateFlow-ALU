@@ -199,6 +199,31 @@ body {
   font-weight: 800;
 }
 
+.optimization-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.optimization-toggle-btn {
+  border: 1px solid #94a3b8;
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 800;
+  border-radius: 8px;
+  padding: 0.08rem 0.4rem;
+  cursor: pointer;
+}
+
+.optimization-progress.compact {
+  margin-top: 0.45rem;
+}
+
+.optimization-progress.compact .optimization-head p {
+  font-size: 1.02rem;
+}
+
 .optimization-steps {
   margin: 0.35rem 0 0;
   padding-left: 1.2rem;
