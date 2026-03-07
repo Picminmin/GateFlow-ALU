@@ -140,6 +140,13 @@ body {
   cursor: not-allowed;
 }
 
+.speed-control {
+  margin-top: 0.6rem;
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
 .validation-ok,
 .validation-error {
   margin: 0.25rem 0 0.75rem;

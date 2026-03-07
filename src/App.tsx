@@ -11,6 +11,7 @@ function App() {
   const [inputs, setInputs] = useState<InputsPanelValues>({ a: 0, b: 0, cin: 0 });
   const [animationTime, setAnimationTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const activeCircuit = getFullAdderCircuit(mode);
   const validation = validateFullAdderCircuit(activeCircuit);
   const demoSignalEdge = activeCircuit.edges[0]?.id;
@@ -42,17 +43,17 @@ function App() {
         startTime = timestamp;
       }
 
-      const elapsedSeconds = (timestamp - startTime) / 1000;
+      const elapsedSeconds = ((timestamp - startTime) / 1000) * speed;
       setAnimationTime(elapsedSeconds % 1);
       frameId = requestAnimationFrame(tick);
     };
 
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
-  }, [isPlaying]);
+  }, [isPlaying, speed]);
 
   const handleStep = () => {
-    setAnimationTime((prev) => (prev + 0.1) % 1);
+    setAnimationTime((prev) => (prev + 0.1 * speed) % 1);
   };
 
   const handleReset = () => {
@@ -97,10 +98,12 @@ function App() {
           <InputsPanel values={inputs} onChange={setInputs} />
           <PlaybackControls
             isPlaying={isPlaying}
+            speed={speed}
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
             onReset={handleReset}
             onStep={handleStep}
+            onSpeedChange={setSpeed}
           />
         </div>
         <section className="circuit-card">
